@@ -1,0 +1,9 @@
+streamlit==1.60.0
+pandas==3.0.5
+psycopg2-binary==2.9.10
+plotly==6.9.0
+python-dotenv==1.2.2
+fpdf2==2.8.7
+bcrypt==5.0.0
+requests==2.32.3
+anthropic==0.120.2

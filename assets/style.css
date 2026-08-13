@@ -1,0 +1,954 @@
+/* ---------------------------------------------------------------------------
+URA Tax Dashboard — stylesheet
+Loaded by app.py via load_css().
+--------------------------------------------------------------------------- */
+
+/* ---------- Base ---------- */
+
+.stApp {
+    background-color: #F5F8FB;
+}
+
+/* Vertically center items within rows of columns */
+[data-testid="stHorizontalBlock"] {
+    align-items: center;
+}
+
+html,
+body,
+[class*="css"],
+p,
+div:not([class*="material"]):not([data-testid*="Icon"]),
+span:not([class*="material"]):not([data-testid*="Icon"]),
+label {
+    font-family: "Roboto", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif !important;
+}
+
+h1,
+h2,
+h3,
+.main-header h1,
+.section-title {
+    font-family: "Montserrat", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif !important;
+}
+
+[data-testid="stIconMaterial"],
+[data-testid*="Icon"],
+[class*="material-icons"],
+[class*="material-symbols"] {
+    font-family: "Material Symbols Rounded", "Material Icons" !important;
+    font-weight: normal;
+}
+
+
+/* ---------- Sidebar ---------- */
+
+[data-testid="stSidebar"] {
+    background: #1755a6;
+}
+
+[data-testid="stSidebar"] * {
+    color: #FFFFFF !important;
+}
+
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3 {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: #fff201 !important;
+    margin-top: 0.8rem;
+    margin-bottom: 0.4rem;
+}
+
+[data-testid="stSidebar"] hr {
+    border-color: rgba(255, 255, 255, 0.15);
+    margin: 0.7rem 0;
+}
+
+/* Tighten vertical rhythm across the whole sidebar */
+
+[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+    gap: 0.45rem !important;
+}
+
+/* Sidebar radio */
+
+[data-testid="stSidebar"] [role="radiogroup"] {
+    gap: 0.1rem !important;
+}
+
+[data-testid="stSidebar"] [role="radiogroup"] label {
+    padding: 0.35rem 0.6rem;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+}
+
+[data-testid="stSidebar"] [role="radiogroup"] label:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Multiselect pills */
+
+[data-testid="stSidebar"] span[data-baseweb="tag"] {
+    background-color: #FFFFFF !important;
+    color: #1755a6 !important;
+    border-bottom: 2px solid #fff201 !important;
+    border-radius: 4px !important;
+    font-weight: 600;
+}
+
+[data-testid="stSidebar"] span[data-baseweb="tag"] svg {
+    fill: #1755a6 !important;
+}
+
+/* Sidebar buttons */
+
+[data-testid="stSidebar"] button {
+    background-color: #1755a6 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    transition: all 0.15s ease !important;
+}
+
+[data-testid="stSidebar"] button p,
+[data-testid="stSidebar"] button span {
+    color: #FFFFFF !important;
+}
+
+[data-testid="stSidebar"] button:hover {
+    background-color: #fff201 !important;
+}
+
+[data-testid="stSidebar"] button:hover p,
+[data-testid="stSidebar"] button:hover span {
+    color: #30302f !important;
+}
+
+/* Sidebar text inputs & selects */
+
+[data-testid="stSidebar"] [data-baseweb="select"] > div,
+[data-testid="stSidebar"] input {
+    background-color: #FFFFFF !important;
+    border-radius: 8px !important;
+}
+
+[data-testid="stSidebar"] [data-baseweb="select"] *,
+[data-testid="stSidebar"] input {
+    color: #30302f !important;
+}
+
+
+/* ---------- Header ---------- */
+
+.main-header {
+    background: #1755a6;
+    padding: 1.4rem 2.2rem;
+    border-radius: 12px;
+    margin-bottom: 1.4rem;
+    border-bottom: 4px solid #fff201;
+    box-shadow: 0 6px 20px rgba(13, 46, 99, 0.15);
+}
+
+.main-header h1 {
+    color: #FFFFFF;
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+.main-header p {
+    color: #DCE6F5;
+    margin: 0.3rem 0 0 0;
+    font-size: 0.92rem;
+}
+
+
+/* ---------- KPI Cards ---------- */
+
+div[data-testid="stMetric"] {
+    background-color: #FFFFFF;
+    border: 1px solid #E3E8EF;
+    border-left: 5px solid #fff201;
+    border-radius: 10px;
+    padding: 1.1rem 1.3rem;
+    box-shadow: 0 2px 8px rgba(13, 46, 99, 0.05);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+div[data-testid="stMetric"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(13, 46, 99, 0.10);
+}
+
+div[data-testid="stMetric"] label {
+    color: #5A6B87;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+div[data-testid="stMetric"] [data-testid="stMetricValue"] {
+    color: #30302f;
+    font-weight: 800;
+}
+
+
+/* ---------- Section titles ---------- */
+
+.section-title {
+    color: #30302f;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 0.3rem 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #fff201;
+}
+
+
+/* ---------- Chart cards ---------- */
+
+.chart-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E3E8EF;
+    border-radius: 12px;
+    padding: 1.2rem 1.3rem 0.5rem 1.3rem;
+    box-shadow: 0 2px 10px rgba(13, 46, 99, 0.05);
+    margin-bottom: 1.2rem;
+    transition: box-shadow 0.15s ease;
+}
+
+.chart-card:hover {
+    box-shadow: 0 6px 18px rgba(13, 46, 99, 0.08);
+}
+
+
+/* ---------- Insight box ---------- */
+
+.insight-box {
+    background-color: #FFF8DE;
+    border-left: 5px solid #fff201;
+    border-radius: 8px;
+    padding: 1rem 1.3rem;
+    color: #30302f;
+    font-size: 0.95rem;
+    margin-bottom: 1.4rem;
+    box-shadow: 0 2px 6px rgba(255, 209, 0, 0.15);
+}
+
+.footnote {
+    color: #8592A6;
+    font-size: 0.82rem;
+    font-style: italic;
+}
+
+
+/* ---------- Tabs ---------- */
+
+div[data-testid="stTabs"] button {
+    font-weight: 600;
+    color: #5A6B87;
+    border-radius: 8px 8px 0 0;
+    padding: 0.5rem 1rem;
+}
+
+div[data-testid="stTabs"] button[aria-selected="true"] {
+    color: #30302f !important;
+    border-bottom: 3px solid #fff201 !important;
+}
+
+div[data-testid="stTabs"] {
+    margin-bottom: 0.5rem;
+}
+
+
+/* ---------- Buttons (main area) ---------- */
+
+.stButton button,
+.stFormSubmitButton button {
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    transition: all 0.15s ease !important;
+}
+
+.stButton button[kind="primary"],
+.stFormSubmitButton button[kind="primary"] {
+    background-color: #1755a6 !important;
+    border-color: #1755a6 !important;
+}
+
+.stButton button[kind="primary"]:hover,
+.stFormSubmitButton button[kind="primary"]:hover {
+    background-color: #30302f !important;
+}
+
+
+/* ---------- Dataframe polish ---------- */
+
+[data-testid="stDataFrame"] {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #E3E8EF;
+}
+
+
+/* ==========================================================================
+   LOGIN / AUTHENTICATION
+   ========================================================================== */
+
+
+/* ---------- Login card ---------- */
+
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    border-top: 5px solid #fff201 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 18px rgba(13, 46, 99, 0.08);
+}
+
+
+/* ---------- Login title ---------- */
+
+.login-title {
+    color: #30302f;
+    font-weight: 800;
+    font-size: 1.4rem;
+    margin-bottom: 0.2rem;
+    text-align: center;
+}
+
+
+/* ---------- Login subtitle ---------- */
+
+.login-subtitle {
+    color: #5A6B87;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-bottom: 1.2rem;
+}
+
+
+/* ---------- Auth split-card / left panel ---------- */
+
+.auth-left-panel {
+    background: linear-gradient(155deg, #1755a6 0%, #0d2e63 100%);
+    border-radius: 20px 0 0 20px;
+    padding: 3rem 2rem;
+    min-height: 560px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(13, 46, 99, 0.20);
+}
+
+
+/* ---------- Decorative dot pattern ---------- */
+
+.auth-left-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(
+        rgba(255, 242, 1, 0.15) 2px,
+        transparent 2px
+    );
+    background-size: 26px 26px;
+    opacity: 0.5;
+}
+
+
+/* ---------- Soft glowing circle ---------- */
+
+.auth-left-panel::after {
+    content: "";
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(
+        circle,
+        rgba(255, 242, 1, 0.18) 0%,
+        transparent 70%
+    );
+    top: -60px;
+    right: -60px;
+    border-radius: 50%;
+}
+
+
+/* ---------- Logo badge ---------- */
+
+.auth-logo-badge {
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 1rem;
+    width: 90px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    position: relative;
+    z-index: 1;
+}
+
+
+/* ---------- Left title ---------- */
+
+.auth-left-title {
+    color: #FFFFFF;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 800;
+    font-size: 1.7rem;
+    margin: 0 0 0.6rem 0;
+    position: relative;
+    z-index: 1;
+}
+
+
+/* ---------- Left subtitle ---------- */
+
+.auth-left-subtitle {
+    color: #C4D8E5;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-width: 260px;
+    position: relative;
+    z-index: 1;
+}
+
+
+/* ==========================================================================
+   RIGHT LOGIN PANEL
+   ========================================================================== */
+
+/*
+   This targets the real Streamlit container created with:
+
+       with st.container(key="auth-right-panel"):
+
+   Do NOT use the old raw HTML:
+       <div class="auth-right-panel">
+
+   because Streamlit widgets should live inside a real Streamlit container.
+*/
+
+.st-key-auth-right-panel {
+    background: #FFFFFF;
+    border-radius: 0 20px 20px 0;
+    padding: 2.6rem 2.4rem;
+    min-height: 560px;
+    box-shadow: 0 10px 40px rgba(13, 46, 99, 0.10);
+}
+
+
+/* ---------- Auth toggle ---------- */
+
+.auth-toggle-row {
+    color: #5A6B87;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 1rem;
+    margin-bottom: 0.4rem;
+}
+
+
+/* ---------- Login inputs ---------- */
+
+.st-key-auth-right-panel input {
+    border-radius: 8px !important;
+}
+
+
+/* ---------- Login form ---------- */
+
+.st-key-auth-right-panel [data-testid="stForm"] {
+    border: none !important;
+    padding: 0 !important;
+}
+
+
+/* ---------- Login errors / messages ---------- */
+
+.st-key-auth-right-panel [data-testid="stAlert"] {
+    border-radius: 8px !important;
+}
+
+
+/* ---------- Auth page background ---------- */
+
+.auth-page-bg {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -10;
+    overflow: hidden;
+}
+
+
+/* ---------- Background slides ---------- */
+
+.auth-page-bg .slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+/* ---------- Glass wrapper ---------- */
+
+/*
+   Kept as a styling class in case it is used elsewhere.
+   Do NOT use a raw HTML wrapper around Streamlit columns.
+*/
+
+.auth-glass-wrap {
+    width: 100%;
+}
+
+
+/* ---------- Responsive login layout ---------- */
+
+@media (max-width: 900px) {
+
+    .auth-left-panel {
+        min-height: 450px;
+        padding: 2rem 1.5rem;
+    }
+
+    .st-key-auth-right-panel {
+        min-height: 450px;
+        padding: 2rem 1.5rem;
+    }
+
+    .auth-left-title {
+        font-size: 1.4rem;
+    }
+}
+
+
+@media (max-width: 640px) {
+
+    .auth-left-panel {
+        min-height: 350px;
+        border-radius: 20px 20px 0 0;
+        padding: 2rem 1.2rem;
+    }
+
+    .st-key-auth-right-panel {
+        min-height: auto;
+        border-radius: 0 0 20px 20px;
+        padding: 2rem 1.2rem;
+    }
+
+    .auth-logo-badge {
+        width: 75px;
+        height: 75px;
+    }
+
+    .auth-left-title {
+        font-size: 1.3rem;
+    }
+
+    .auth-left-subtitle {
+        font-size: 0.88rem;
+    }
+}
+
+/* ==========================================================================
+   TOP NAVIGATION BAR
+   ========================================================================== */
+
+/* ---------- Main navigation container ---------- */
+
+.st-key-top_nav_strip {
+    background: #1755a6;
+    padding: 0.65rem 1.4rem 0.85rem 1.4rem;
+    margin: -1rem -1rem 1.4rem -1rem;
+    width: calc(100% + 2rem);
+    border-radius: 0 0 14px 14px;
+    border-bottom: 4px solid #fff201;
+    box-shadow: 0 6px 20px rgba(13, 46, 99, 0.15);
+}
+
+/* Keep all navigation columns aligned vertically */
+.st-key-top_nav_strip [data-testid="column"] {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+/* Prevent Streamlit's internal blocks from creating unwanted width */
+.st-key-top_nav_strip [data-testid="column"] > div {
+    min-width: 0;
+}
+
+/* Keep vertical spacing compact */
+.st-key-top_nav_strip [data-testid="stVerticalBlock"] {
+    gap: 0.4rem !important;
+}
+
+
+/* ==========================================================================
+   BRAND
+   ========================================================================== */
+
+.top-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    width: 100%;
+}
+
+.top-nav-brand img {
+    background: #FFFFFF;
+    border-radius: 6px;
+    padding: 0.25rem;
+    flex: 0 0 auto;
+}
+
+.top-nav-brand-text {
+    color: #FFFFFF;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    line-height: 1.15;
+
+    /* Never allow the brand to wrap */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    min-width: 0;
+    display: block;
+}
+
+
+/* ==========================================================================
+   USER INFORMATION
+   ========================================================================== */
+
+.top-nav-user {
+    color: #FFFFFF;
+    font-size: 0.74rem;
+    text-align: right;
+    line-height: 1.3;
+
+    /* Prevent unwanted wrapping */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    min-width: 0;
+    width: 100%;
+}
+
+.top-nav-user .top-nav-role {
+    color: #fff201;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.66rem;
+    letter-spacing: 0.03em;
+
+    /* Keep role/department on one line */
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+}
+
+
+/* ==========================================================================
+   DIVIDER
+   ========================================================================== */
+
+.top-nav-divider {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    margin: 0.5rem 0 0.7rem 0;
+}
+
+
+/* ==========================================================================
+   NAVIGATION BUTTONS
+   ========================================================================== */
+
+.st-key-top_nav_strip button {
+    background: transparent !important;
+    border: none !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    border-radius: 6px !important;
+    padding: 0.5rem 1.1rem !important;
+
+    /* Never wrap button text */
+    white-space: nowrap !important;
+
+    width: auto !important;
+    min-width: fit-content !important;
+}
+
+.st-key-top_nav_strip button p,
+.st-key-top_nav_strip button span {
+    color: #FFFFFF !important;
+    white-space: nowrap !important;
+}
+
+.st-key-top_nav_strip button:hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+}
+
+.st-key-top_nav_strip button[kind="primary"] {
+    background: #fff201 !important;
+}
+
+.st-key-top_nav_strip button[kind="primary"] p,
+.st-key-top_nav_strip button[kind="primary"] span {
+    color: #1755a6 !important;
+}
+
+
+/* ==========================================================================
+   ROW 2 — SEARCH / FILTER / RESOURCE CONTROLS
+   ========================================================================== */
+
+/* Inputs and select boxes */
+.st-key-top_nav_strip [data-baseweb="select"] > div,
+.st-key-top_nav_strip input {
+    background-color: #FFFFFF !important;
+    border-radius: 8px !important;
+    border: none !important;
+}
+
+.st-key-top_nav_strip [data-baseweb="select"] *,
+.st-key-top_nav_strip input {
+    color: #30302f !important;
+}
+
+
+/* ---------- Row 2 labels ---------- */
+
+.st-key-top_nav_strip label p {
+    color: #DCE6F5 !important;
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+
+    /* Consistent label alignment */
+    line-height: 1.2 !important;
+    margin-bottom: 0.25rem !important;
+}
+
+
+/* ---------- Row 2 widget widths ---------- */
+
+.st-key-top_nav_strip [data-testid="stTextInput"],
+.st-key-top_nav_strip [data-testid="stMultiSelect"],
+.st-key-top_nav_strip [data-testid="stSelectbox"] {
+    width: 100%;
+}
+
+
+/* ---------- Row 2 buttons ---------- */
+
+.st-key-top_nav_strip .stButton {
+    width: 100%;
+}
+
+.st-key-top_nav_strip .stButton > button {
+    margin-top: 0.05rem;
+}
+
+
+/* ---------- Resource selection tags ---------- */
+
+.st-key-top_nav_strip span[data-baseweb="tag"] {
+    background-color: #FFFFFF !important;
+    color: #1755a6 !important;
+    border-bottom: 2px solid #fff201 !important;
+    border-radius: 4px !important;
+    font-weight: 600;
+}
+
+.st-key-top_nav_strip span[data-baseweb="tag"] svg {
+    fill: #1755a6 !important;
+}
+/* ==========================================================================
+   RESOURCES VIEW / MANAGEMENT ACTIONS — two-card filter/action bar
+   ========================================================================== */
+
+.st-key-resources-card,
+.st-key-management-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E3E8EF;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(13, 46, 99, 0.05);
+    padding: 1.2rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.st-key-resources-card:hover,
+.st-key-management-card:hover {
+    box-shadow: 0 6px 18px rgba(13, 46, 99, 0.08);
+}
+
+/* Card title, matches your existing .section-title look */
+.ui-card-title {
+    color: #30302f;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #fff201;
+    display: block;
+    box-sizing: border-box;
+}
+
+/* Uniform 44px control height across text inputs, selects, buttons */
+/* Selectbox — safe to force exact height, single-line content */
+.st-key-resources-card [data-testid="stSelectbox"] [data-baseweb="select"] > div {
+    min-height: 44px !important;
+    height: 44px !important;
+    border-radius: 8px !important;
+    display: flex;
+    align-items: center;
+}
+
+/* Multiselect — let it grow, don't clip tags/placeholder */
+.st-key-resources-card [data-testid="stMultiSelect"] [data-baseweb="select"] > div {
+    min-height: 44px !important;
+    height: auto !important;
+    border-radius: 8px !important;
+}
+
+.st-key-resources-card input {
+    min-height: 44px !important;
+    height: 44px !important;
+    border-radius: 8px !important;
+}
+
+.st-key-management-card button {
+    min-height: 44px !important;
+    height: 44px !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    padding: 0 1rem !important;
+}
+
+.st-key-resources-card [data-baseweb="select"] > div {
+    display: flex;
+    align-items: center;
+}
+
+/* Clean, small, uppercase, bold widget labels */
+.st-key-resources-card label p,
+.st-key-management-card label p {
+    color: #5A6B87 !important;
+    font-weight: 700 !important;
+    font-size: 0.72rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.3rem !important;
+    line-height: 1.2 !important;
+}
+
+/* Management card buttons */
+.st-key-management-card .stButton {
+    width: 100%;
+    display: flex !important;
+    gap: 0.6rem !important;
+}
+
+.st-key-management-card .stButton > button {
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 1rem !important;
+    white-space: nowrap !important;
+    flex: 1 1 auto !important;
+}
+
+.st-key-management-card .stButton > button[kind="primary"] {
+    background-color: #1755a6 !important;
+    border-color: #1755a6 !important;
+}
+
+.st-key-management-card .stButton > button[kind="primary"]:hover {
+    background-color: #30302f !important;
+}
+
+.st-key-management-card .stButton > button[kind="secondary"] {
+    background-color: #FFFFFF !important;
+    color: #1755a6 !important;
+    border: 1px solid #1755a6 !important;
+}
+
+/* Ensure button label text is visible and vertically centered */
+.st-key-management-card .stButton > button[kind="primary"] p,
+.st-key-management-card .stButton > button[kind="primary"] span {
+    color: #FFFFFF !important;
+}
+.st-key-management-card .stButton > button[kind="secondary"] p,
+.st-key-management-card .stButton > button[kind="secondary"] span {
+    color: #1755a6 !important;
+}
+
+.st-key-management-card .stButton > button[kind="secondary"]:hover {
+    background-color: #F0F5FB !important;
+}
+
+/* Responsive: stack the two cards on narrow viewports */
+@media (max-width: 900px) {
+    .st-key-resources-card,
+    .st-key-management-card {
+        margin-bottom: 1rem;
+    }
+}
+
+
+/* ==========================================================================
+   EXTRA ALIGNMENT / RESPONSIVENESS
+   ========================================================================== */
+
+/* Make sure flex children are allowed to shrink instead of overflowing */
+.st-key-top_nav_strip .top-nav-brand,
+.st-key-top_nav_strip .top-nav-user {
+    min-width: 0;
+}
+
+/* Keep buttons vertically centered against inputs */
+.st-key-top_nav_strip .stButton,
+.st-key-top_nav_strip [data-testid="stTextInput"],
+.st-key-top_nav_strip [data-testid="stMultiSelect"],
+.st-key-top_nav_strip [data-testid="stSelectbox"] {
+    align-self: center;
+}

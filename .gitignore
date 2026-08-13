@@ -1,0 +1,12 @@
+.env
+.env.save
+.streamlit/secrets.toml
+__pycache__/
+*.pyc
+.venv/
+*.pdf
+*.dump
+.vscode/
+.agents/
+.claude/
+another/
