@@ -75,9 +75,17 @@ def resources_delete(resource_id, business_name, deleted_by):
     resources_log_audit(int(resource_id), "delete", deleted_by, f"Deleted '{business_name}'")
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("DELETE FROM public_resources WHERE id = %s", (int(resource_id),))
-    conn.commit()
-    cur.close()
+    try:
+        cur.execute("DELETE FROM public_resource_recent WHERE resource_id = %s", (int(resource_id),))
+        cur.execute("DELETE FROM public_resource_favorites WHERE resource_id = %s", (int(resource_id),))
+        cur.execute("DELETE FROM resource_department_access WHERE resource_id = %s", (int(resource_id),))
+        cur.execute("DELETE FROM public_resources WHERE id = %s", (int(resource_id),))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise
+    finally:
+        cur.close()
 
 
 def resources_record_view(resource_id):

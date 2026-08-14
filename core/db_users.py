@@ -195,8 +195,19 @@ def users_delete(user_id):
             cur.close()
             return False, "Cannot delete the only remaining active admin account."
 
-    cur.execute("DELETE FROM app_users WHERE id = %s", (int(user_id),))
-    conn.commit()
+    try:
+        cur.execute("DELETE FROM public_resource_recent WHERE user_id = %s", (int(user_id),))
+        cur.execute("DELETE FROM public_resource_favorites WHERE user_id = %s", (int(user_id),))
+        cur.execute("DELETE FROM user_sessions WHERE user_id = %s", (int(user_id),))
+        cur.execute("DELETE FROM user_department_access WHERE user_id = %s", (int(user_id),))
+        cur.execute("DELETE FROM user_special_permissions WHERE user_id = %s", (int(user_id),))
+        cur.execute("DELETE FROM app_users WHERE id = %s", (int(user_id),))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        cur.close()
+        return False, f"Failed to delete user: {str(e)}"
+    
     cur.close()
     return True, "User account deleted."
 

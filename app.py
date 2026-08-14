@@ -49,6 +49,7 @@ LOGO_PATH = os.path.join(os.path.dirname(__file__), "assets", "URA-logo.png")
 CSS_PATH = os.path.join(os.path.dirname(__file__), "assets", "style.css")
 
 from core.utils import render_logo_html
+from core.db import get_connection
 
 # ---------------------------------------------------------------------------
 # STYLE / ASSET HELPERS
@@ -84,8 +85,11 @@ st.markdown(f"<style>{load_css(CSS_PATH)}</style>", unsafe_allow_html=True)
 # ---------------------------------------------------------------------------
 
 from core.db_departments import user_department_access_get
+from core import db_users as db_users_module
+from core import db_resources as db_resources_module
 from core.db_resources import resources_get_all
 from views.public_resources import render_public_resources, get_visible_resources
+import views.public_resources as public_resources_view
 from views.user_management import render_user_management
 from views.analytics import render_analytics
 from core.auth import (
@@ -94,6 +98,7 @@ from core.auth import (
     delete_user_session,
     check_login,
 )
+
 # ---------------------------------------------------------------------------
 # TOP-LEVEL NAVIGATION
 # ---------------------------------------------------------------------------
