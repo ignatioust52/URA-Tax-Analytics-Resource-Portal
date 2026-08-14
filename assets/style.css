@@ -1,66 +1,145 @@
 /* ---------------------------------------------------------------------------
-UGANDA REVENUE AUTHORITY (URA) — ENTERPRISE DIGITAL PLATFORM STYLESHEET
+UGANDA REVENUE AUTHORITY (URA) — TAX ANALYTICS & RESOURCE PORTAL
 Design Tokens:
-- Primary Institutional Blue: #1B3A75
-- Dark Hover Blue: #122A57
-- Accent Gold/Yellow: #FFF200
-- Success Tax Green: #008751
-- Canvas Background: #F8FAFC
-- Surface Cards: #FFFFFF
-- Headings & Primary Text: #30302F
-- Muted Labels & Captions: #64748B
-- Border Color: #E2E8F0
+- Institutional Navy:      #243F8D
+- Navy (dark / hover):     #1A2E66
+- Ochre Gold (accent):     #FFF200
+- Gold, soft (tint):       #FFFBCC
+- Terracotta (live/alert): #B54834
+- Canvas (warm paper):     #F6F3EC
+- Surface (cards):         #FFFFFF
+- Ink (text):               #1C2430
+- Muted (labels):          #6B7280
+- Border:                  #E4DFD3
+- Tax Green (success):     #1F7A4C
+
+Typography:
+- Display (headings):  'Fraunces'      — institutional, engraved-document character
+- Body/UI:              'IBM Plex Sans' — clean, technical, official register
+- Data/figures:         'IBM Plex Mono' — tabular numerals for KPIs, TINs, currency
+
+Signature element: a thin repeating diagonal triband strip (gold / terracotta /
+navy), used once as the header divider and as a hairline top-accent on cards —
+a restrained nod to Ugandan woven-textile borders, not a decoration repeated
+everywhere.
+
+SINGLE SOURCE OF TRUTH: this file is the only place page-wide styling lives.
+Do not add competing <style> blocks in app.py or view files — if a widget
+needs styling, extend the rules below instead so every page stays consistent.
 --------------------------------------------------------------------------- */
+
+:root {
+    --ura-navy: #243F8D;
+    --ura-navy-dark: #1A2E66;
+    --ura-gold: #FFF200;
+    --ura-gold-soft: #FFFBCC;
+    --ura-terracotta: #B54834;
+    --ura-canvas: #F6F3EC;
+    --ura-surface: #FFFFFF;
+    --ura-ink: #1C2430;
+    --ura-muted: #6B7280;
+    --ura-border: #E4DFD3;
+    --ura-green: #1F7A4C;
+}
 
 /* Hide default Streamlit clutter */
 header[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden; }
 footer { visibility: hidden; }
 
-/* Base App Layout & Canvas */
+/* ---------------------------------------------------------------------------
+   BASE APP LAYOUT & CANVAS
+--------------------------------------------------------------------------- */
 .stApp {
-    background-color: #F8FAFC !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    background: var(--ura-canvas) !important;
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 
 .block-container {
-    padding-top: 1rem !important;
-    padding-bottom: 2rem !important;
-    padding-left: 1.5rem !important;
-    padding-right: 1.5rem !important;
-    max-width: 1400px !important;
+    padding-top: 0 !important;
+    padding-bottom: 3rem !important;
+    padding-left: 2.5rem !important;
+    padding-right: 2.5rem !important;
+    max-width: 1300px !important;
     margin: 0 auto !important;
 }
 
-/* Typography & Section Titles */
-h1, h2, h3, h4, h5, h6, .section-title {
-    color: #30302F !important;
-    font-weight: 700 !important;
-    letter-spacing: -0.02em !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif !important;
+/* ---------------------------------------------------------------------------
+   TYPOGRAPHY
+--------------------------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Fraunces", Georgia, serif !important;
+    font-weight: 600 !important;
+    color: var(--ura-ink) !important;
+    letter-spacing: -0.01em !important;
 }
 
 .section-title {
-    font-size: 1.25rem !important;
-    margin-bottom: 1rem !important;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    font-family: "Fraunces", Georgia, serif !important;
+    font-weight: 600 !important;
+    font-size: 1.15rem !important;
+    color: var(--ura-ink) !important;
+    margin-bottom: 0.35rem !important;
+}
+
+.section-sub {
+    font-family: "IBM Plex Sans", sans-serif !important;
+    color: var(--ura-muted) !important;
+    font-size: 0.85rem !important;
+    margin-bottom: 1.25rem !important;
 }
 
 p, label, span, div {
-    color: #30302F;
-    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    color: var(--ura-ink);
+    font-family: "IBM Plex Sans", sans-serif;
 }
 
-/* Top Header Banner (Yellow Header Bar) */
-div[data-testid="stContainer"][key="top_yellow_header"] {
-    background: #FFF200 !important;
-    border-radius: 12px 12px 0 0 !important;
-    padding: 0.85rem 1.5rem !important;
-    border: 1px solid #E6D700 !important;
-    border-bottom: none !important;
+/* Figures — KPI values, TINs, currency amounts, dates — get the mono face
+   for tabular alignment. Apply this class in markup where numbers render. */
+.ura-figure {
+    font-family: "IBM Plex Mono", monospace !important;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------
+   SIGNATURE STRIP — repeating triband, used sparingly (header divider +
+   card top-accents only)
+--------------------------------------------------------------------------- */
+.ura-stripe {
+    height: 4px;
+    width: 100%;
+    background: repeating-linear-gradient(
+        115deg,
+        var(--ura-gold) 0px, var(--ura-gold) 12px,
+        var(--ura-terracotta) 12px, var(--ura-terracotta) 18px,
+        var(--ura-navy) 18px, var(--ura-navy) 32px
+    );
+}
+
+/* ---------------------------------------------------------------------------
+   TOP NAVIGATION — single unified navy bar (brand + tabs + user/logout)
+   Targeted two ways for resilience: the modern `.st-key-<key>` class
+   Streamlit adds for any st.container(key=...) (stable since ~1.32), and
+   the older :has()-based selector as a fallback for older Streamlit
+   versions. If only one of these matches in your version, the bar still
+   renders correctly.
+--------------------------------------------------------------------------- */
+.st-key-top_nav_header,
+[data-testid="stVerticalBlock"]:has(.top-nav-brand):not(:has([data-testid="stVerticalBlock"])) {
+    background: var(--ura-navy) !important;
+    padding: 0.9rem 1.75rem !important;
+    border: none !important;
+    border-radius: 0 !important;
     margin-bottom: 0 !important;
+}
+
+.st-key-top_nav_header p,
+.st-key-top_nav_header label,
+.st-key-top_nav_header div,
+[data-testid="stVerticalBlock"]:has(.top-nav-brand):not(:has([data-testid="stVerticalBlock"])) p,
+[data-testid="stVerticalBlock"]:has(.top-nav-brand):not(:has([data-testid="stVerticalBlock"])) label,
+[data-testid="stVerticalBlock"]:has(.top-nav-brand):not(:has([data-testid="stVerticalBlock"])) div {
+    color: #FFFFFF !important;
 }
 
 .top-nav-brand {
@@ -75,283 +154,441 @@ div[data-testid="stContainer"][key="top_yellow_header"] {
 }
 
 .top-nav-main-title {
-    font-weight: 800;
-    font-size: 1.35rem;
-    color: #1B3A75;
-    letter-spacing: -0.02em;
+    font-family: "Fraunces", Georgia, serif !important;
+    font-weight: 600 !important;
+    font-size: 1.35rem !important;
+    color: #FFFFFF !important;
     line-height: 1.1;
 }
 
 .top-nav-subtitle {
-    font-size: 0.725rem;
-    font-weight: 700;
-    color: #1B3A75;
-    letter-spacing: 0.06em;
+    font-family: "IBM Plex Sans", sans-serif !important;
+    font-size: 0.66rem !important;
+    font-weight: 600 !important;
+    color: var(--ura-gold-soft) !important;
+    letter-spacing: 0.14em !important;
     text-transform: uppercase;
-    margin-top: 2px;
+    margin-top: 3px;
 }
 
 .top-nav-user {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #1B3A75;
-    line-height: 1.2;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #FFFFFF;
+    line-height: 1.3;
     text-align: right;
 }
 
 .top-nav-role {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: #475569;
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: #9FB0C4;
 }
 
+/* Live status pill — terracotta instead of green, reserves green for
+   success/paid states elsewhere in the app */
 .ura-live-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    background: rgba(27, 58, 117, 0.08);
-    border: 1px solid rgba(27, 58, 117, 0.2);
-    color: #1B3A75;
-    padding: 5px 14px;
+    gap: 7px;
+    background: rgba(181, 72, 52, 0.14);
+    border: 1px solid rgba(181, 72, 52, 0.35);
+    color: #F3C6B9;
+    padding: 5px 13px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
 .ura-live-dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: #008751;
+    background: var(--ura-terracotta);
     display: inline-block;
-    box-shadow: 0 0 0 3px rgba(0, 135, 81, 0.25);
 }
 
-/* Top Navigation Bar (Deep Navy Blue Bar) */
-div[data-testid="stContainer"][key="top_blue_navbar"] {
-    background: #1B3A75 !important;
-    border-radius: 0 0 12px 12px !important;
-    padding: 0.75rem 1.25rem !important;
-    border: 1px solid #122A57 !important;
-    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
-    margin-bottom: 1.5rem !important;
-}
-
-div[data-testid="stContainer"][key="top_blue_navbar"] p,
-div[data-testid="stContainer"][key="top_blue_navbar"] label,
-div[data-testid="stContainer"][key="top_blue_navbar"] div {
-    color: #FFFFFF !important;
-}
-
+/* Underline-style page tabs, replacing the previous pill-shaped nav buttons.
+   Same dual-selector approach as the header bar above. */
+.st-key-top_blue_navbar button[kind="primary"],
 div[data-testid="stContainer"][key="top_blue_navbar"] button[kind="primary"] {
-    background-color: #FFF200 !important;
-    color: #1B3A75 !important;
-    font-weight: 700 !important;
-    font-size: 0.925rem !important;
-    border-radius: 20px !important;
-    border: none !important;
-    height: 40px !important;
-    padding: 0 1.25rem !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
-}
-
-div[data-testid="stContainer"][key="top_blue_navbar"] button[kind="primary"]:hover {
-    background-color: #E6D700 !important;
-    color: #122A57 !important;
-    transform: translateY(-1px);
-}
-
-div[data-testid="stContainer"][key="top_blue_navbar"] button[kind="secondary"] {
     background-color: transparent !important;
     color: #FFFFFF !important;
     font-weight: 600 !important;
-    font-size: 0.925rem !important;
-    border-radius: 20px !important;
+    font-size: 0.88rem !important;
+    border-radius: 0 !important;
     border: none !important;
-    height: 40px !important;
-    padding: 0 1.25rem !important;
-    transition: all 0.2s ease !important;
+    border-bottom: 2px solid var(--ura-gold) !important;
+    height: 38px !important;
+    padding: 0 0.25rem !important;
+    box-shadow: none !important;
 }
 
+.st-key-top_blue_navbar button[kind="secondary"],
+div[data-testid="stContainer"][key="top_blue_navbar"] button[kind="secondary"] {
+    background-color: transparent !important;
+    color: #9FB0C4 !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    border-radius: 0 !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    height: 38px !important;
+    padding: 0 0.25rem !important;
+    transition: color 0.15s ease !important;
+}
+
+.st-key-top_blue_navbar button[kind="secondary"]:hover,
 div[data-testid="stContainer"][key="top_blue_navbar"] button[kind="secondary"]:hover {
-    background-color: rgba(255, 255, 255, 0.15) !important;
+    background-color: transparent !important;
+    color: #FFFFFF !important;
+}
+
+.st-key-top_blue_navbar {
+    background: var(--ura-navy) !important;
+    padding: 0.6rem 1.75rem 0.9rem 1.75rem !important;
+}
+
+.st-key-top_blue_navbar p, .st-key-top_blue_navbar span {
     color: #FFFFFF !important;
 }
 
 .top-nav-divider {
     border: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
     margin: 0.75rem 0;
 }
 
-/* Cards & Surface Containers */
+/* ---------------------------------------------------------------------------
+   CARDS & SURFACES — flat, bordered; the glass/blur treatment is gone.
+   Each card gets the triband hairline as its top accent instead.
+--------------------------------------------------------------------------- */
 [data-testid="stVerticalBlockBorderWrapper"], .ui-card {
-    background: #FFFFFF !important;
-    border-radius: 8px !important;
-    border: 1px solid #E2E8F0 !important;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
-    transition: all 0.2s ease-in-out;
+    background: var(--ura-surface) !important;
+    border-radius: 4px !important;
+    border: 1px solid var(--ura-border) !important;
+    box-shadow: none !important;
+    position: relative;
+}
+
+[data-testid="stVerticalBlockBorderWrapper"]::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 4px 4px 0 0;
+    background: repeating-linear-gradient(
+        115deg,
+        var(--ura-gold) 0px, var(--ura-gold) 8px,
+        var(--ura-terracotta) 8px, var(--ura-terracotta) 12px,
+        var(--ura-navy) 12px, var(--ura-navy) 22px
+    );
 }
 
 [data-testid="stVerticalBlockBorderWrapper"]:hover {
-    box-shadow: 0 4px 12px rgba(27, 58, 117, 0.08) !important;
-    border-color: #1B3A75 !important;
+    border-color: var(--ura-navy) !important;
 }
 
 .ui-card-title {
-    font-size: 0.75rem !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    color: #64748B !important;
-    margin-bottom: 0.5rem !important;
+    font-family: "Fraunces", Georgia, serif !important;
+    font-size: 0.92rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    color: var(--ura-ink) !important;
+    margin-bottom: 0.6rem !important;
 }
 
-/* Global Button Styling & Improved Padding */
+/* ---------------------------------------------------------------------------
+   BUTTONS — the single button system for the whole app. Any Streamlit
+   st.button() picks this up automatically, on every page, with no
+   per-view CSS needed.
+--------------------------------------------------------------------------- */
 button[kind="primary"],
 button[kind="secondary"],
 div[data-testid="stForm"] button[type="submit"] {
-    border-radius: 8px !important;
+    border-radius: 3px !important;
     font-weight: 600 !important;
-    font-size: 0.925rem !important;
-    height: 44px !important;
-    padding: 0 1.35rem !important;
-    transition: all 0.2s ease-in-out !important;
+    font-size: 0.88rem !important;
+    height: 42px !important;
+    padding: 0 1.25rem !important;
+    transition: all 0.2s ease !important;
+    font-family: "IBM Plex Sans", sans-serif !important;
+    letter-spacing: 0 !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
-/* Primary Action Buttons */
 button[kind="primary"],
 div[data-testid="stForm"] button[type="submit"] {
-    background-color: #1B3A75 !important;
+    background: var(--ura-navy) !important;
     color: #FFFFFF !important;
     border: none !important;
-    box-shadow: 0 2px 4px rgba(27, 58, 117, 0.2) !important;
 }
 
 button[kind="primary"]:hover,
 div[data-testid="stForm"] button[type="submit"]:hover {
-    background-color: #122A57 !important;
-    box-shadow: 0 4px 12px rgba(27, 58, 117, 0.3) !important;
-    transform: translateY(-1px);
+    background: var(--ura-navy-dark) !important;
+    color: #FFFFFF !important;
 }
 
-/* Secondary Buttons */
+button[kind="primary"]:active,
+div[data-testid="stForm"] button[type="submit"]:active {
+    background: var(--ura-gold) !important;
+    color: var(--ura-navy) !important;
+}
+
 button[kind="secondary"] {
     background-color: #FFFFFF !important;
-    border: 1px solid #CBD5E1 !important;
-    color: #1B3A75 !important;
+    border: 1px solid var(--ura-border) !important;
+    color: var(--ura-navy) !important;
 }
 
 button[kind="secondary"]:hover {
-    background-color: #F8FAFC !important;
-    border-color: #1B3A75 !important;
-    color: #122A57 !important;
+    background-color: var(--ura-canvas) !important;
+    border-color: var(--ura-navy) !important;
 }
 
-/* Form Field Inputs & Selectboxes */
+/* ---------------------------------------------------------------------------
+   FORM FIELDS
+--------------------------------------------------------------------------- */
 div[data-baseweb="input"] {
-    border-radius: 6px !important;
-    border: 1px solid #CBD5E1 !important;
-    background-color: #FFFFFF !important;
+    border-radius: 3px !important;
+    border: 1px solid var(--ura-border) !important;
+    background-color: var(--ura-canvas) !important;
     height: 42px !important;
-    transition: all 0.2s ease;
 }
 
 div[data-baseweb="input"]:focus-within {
-    border-color: #1B3A75 !important;
-    box-shadow: 0 0 0 3px rgba(27, 58, 117, 0.15) !important;
+    border-color: var(--ura-navy) !important;
+    background-color: #FFFFFF !important;
+    box-shadow: 0 0 0 3px rgba(36, 63, 141, 0.1) !important;
 }
 
 div[data-baseweb="input"] input {
-    color: #30302F !important;
+    color: var(--ura-ink) !important;
     font-size: 0.9rem !important;
+    font-family: "IBM Plex Sans", sans-serif !important;
 }
 
 div[data-baseweb="select"] > div {
-    border-radius: 6px !important;
-    border: 1px solid #CBD5E1 !important;
+    border-radius: 3px !important;
+    border: 1px solid var(--ura-border) !important;
     min-height: 42px !important;
+    background-color: var(--ura-canvas) !important;
 }
 
-/* Streamlit Tabs */
+div[data-baseweb="select"] span {
+    font-family: "IBM Plex Sans", sans-serif !important;
+    color: var(--ura-ink) !important;
+}
+
+div[data-baseweb="textarea"] {
+    border-radius: 3px !important;
+    border: 1px solid var(--ura-border) !important;
+    background-color: var(--ura-canvas) !important;
+}
+
+/* Radio / checkbox labels stay in the body face, not oversized */
+div[data-testid="stRadio"] label p,
+div[data-testid="stCheckbox"] label p {
+    font-family: "IBM Plex Sans", sans-serif !important;
+    font-size: 0.88rem !important;
+}
+
+/* ---------------------------------------------------------------------------
+   TABS — underline style, consistent with the top nav
+--------------------------------------------------------------------------- */
 [data-testid="stTabs"] [data-baseweb="tab-list"] {
-    gap: 8px !important;
-    border-bottom: 2px solid #E2E8F0 !important;
+    gap: 24px !important;
+    border-bottom: 1px solid var(--ura-border) !important;
     margin-bottom: 1.25rem !important;
 }
 
 [data-testid="stTabs"] [data-baseweb="tab"] {
-    height: 40px !important;
+    height: 38px !important;
     font-weight: 600 !important;
-    font-size: 0.9rem !important;
-    color: #64748B !important;
-    padding: 0 16px !important;
-    border-radius: 20px !important;
+    font-size: 0.88rem !important;
+    color: var(--ura-muted) !important;
+    padding: 0 2px !important;
+    border-radius: 0 !important;
+    font-family: "IBM Plex Sans", sans-serif !important;
 }
 
 [data-testid="stTabs"] [aria-selected="true"] {
-    color: #1B3A75 !important;
-    background-color: #FFF200 !important;
+    color: var(--ura-navy) !important;
+    background-color: transparent !important;
     font-weight: 700 !important;
-    border-radius: 20px !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
-    border-bottom: none !important;
+    border-bottom: 2px solid var(--ura-gold) !important;
+    box-shadow: none !important;
 }
 
-/* Metrics & KPI Cards */
+/* ---------------------------------------------------------------------------
+   METRICS / KPI CARDS
+--------------------------------------------------------------------------- */
 div[data-testid="stMetric"] {
-    background: #FFFFFF !important;
-    border: 1px solid #E2E8F0 !important;
-    border-radius: 8px !important;
-    padding: 0.75rem 1rem !important;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+    background: var(--ura-surface) !important;
+    border: 1px solid var(--ura-border) !important;
+    border-radius: 4px !important;
+    padding: 1.1rem 1.25rem 1rem 1.25rem !important;
+    box-shadow: none !important;
+    position: relative;
+}
+
+div[data-testid="stMetric"]::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 4px 4px 0 0;
+    background: repeating-linear-gradient(
+        115deg,
+        var(--ura-gold) 0px, var(--ura-gold) 8px,
+        var(--ura-terracotta) 8px, var(--ura-terracotta) 12px,
+        var(--ura-navy) 12px, var(--ura-navy) 22px
+    );
 }
 
 div[data-testid="stMetricLabel"] {
-    font-size: 0.8rem !important;
-    font-weight: 600 !important;
-    color: #64748B !important;
+    font-family: "IBM Plex Sans", sans-serif !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    color: var(--ura-muted) !important;
     text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 div[data-testid="stMetricValue"] {
-    font-size: 1.6rem !important;
-    font-weight: 700 !important;
-    color: #1B3A75 !important;
+    font-family: "IBM Plex Mono", monospace !important;
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    color: var(--ura-navy) !important;
 }
 
-/* Enterprise Data Tables */
-[data-testid="stDataFrame"] {
-    border-radius: 8px !important;
-    border: 1px solid #E2E8F0 !important;
+div[data-testid="stMetricDelta"] {
+    font-family: "IBM Plex Sans", sans-serif !important;
+    font-size: 0.76rem !important;
+    font-weight: 600 !important;
+}
+
+/* ---------------------------------------------------------------------------
+   DATA TABLES — figures in mono for scan-ability
+--------------------------------------------------------------------------- */
+[data-testid="stDataFrame"], [data-testid="stTable"] {
+    border-radius: 4px !important;
+    border: 1px solid var(--ura-border) !important;
+    box-shadow: none !important;
     overflow: hidden;
+    font-family: "IBM Plex Mono", monospace !important;
 }
 
-/* Badges & Chips */
+[data-testid="stDataFrame"] [data-testid="stElementToolbar"] {
+    background: var(--ura-canvas) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   STATUS CHIPS / BADGES — reused everywhere (tables, cards, resource tags)
+--------------------------------------------------------------------------- */
 .ura-chip {
     display: inline-block;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.75rem;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 0.72rem;
     font-weight: 600;
+    font-family: "IBM Plex Sans", sans-serif;
 }
 .ura-chip-blue {
-    background-color: #EFF6FF;
-    color: #1B3A75;
-    border: 1px solid #BFDBFE;
+    background-color: #EAF0F6;
+    color: var(--ura-navy);
+    border: 1px solid #C7D3E0;
 }
 .ura-chip-gold {
-    background-color: #FEFCE8;
-    color: #854D0E;
-    border: 1px solid #FEF08A;
+    background-color: var(--ura-gold-soft);
+    color: #6B5A00;
+    border: 1px solid #F5E24D;
 }
 .ura-chip-green {
-    background-color: #F0FDF4;
-    color: #166534;
-    border: 1px solid #BBF7D0;
+    background-color: #E7F3EC;
+    color: var(--ura-green);
+    border: 1px solid #BFE2CD;
+}
+.ura-chip-red {
+    background-color: #F8E2DC;
+    color: var(--ura-terracotta);
+    border: 1px solid #EBB6A6;
 }
 
-/* Floating URA Bubbles */
+/* ---------------------------------------------------------------------------
+   ALERTS — st.info / st.success / st.warning / st.error, restyled to the
+   same flat-bordered, left-accent language as the rest of the app.
+--------------------------------------------------------------------------- */
+div[data-testid="stAlertContainer"] {
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    font-family: "IBM Plex Sans", sans-serif !important;
+    border: 1px solid var(--ura-border) !important;
+    border-left-width: 3px !important;
+}
+
+div[data-testid="stAlertContainer"][data-baseweb="notification"] {
+    background: var(--ura-surface);
+}
+
+div[data-testid="stAlertContentInfo"] { color: var(--ura-navy) !important; }
+div[data-testid="stAlertContentSuccess"] { color: var(--ura-green) !important; }
+div[data-testid="stAlertContentWarning"] { color: #6B5A00 !important; }
+div[data-testid="stAlertContentError"] { color: var(--ura-terracotta) !important; }
+
+/* ---------------------------------------------------------------------------
+   EMPTY STATES — for "no results" / "no records" moments, e.g. after a
+   Public Resources search with zero matches. Apply the .ura-empty-state
+   wrapper class around the message.
+--------------------------------------------------------------------------- */
+.ura-empty-state {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border: 1px dashed var(--ura-border);
+    border-radius: 4px;
+    background: var(--ura-surface);
+    color: var(--ura-muted);
+    font-family: "IBM Plex Sans", sans-serif;
+}
+
+.ura-empty-state .icon { font-size: 1.6rem; margin-bottom: 0.5rem; }
+.ura-empty-state .title {
+    font-family: "Fraunces", Georgia, serif !important;
+    font-weight: 600;
+    color: var(--ura-ink);
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+/* ---------------------------------------------------------------------------
+   LOADING STATES — st.spinner text, kept in the body face and muted tone
+   instead of Streamlit's default styling.
+--------------------------------------------------------------------------- */
+div[data-testid="stSpinner"] p {
+    font-family: "IBM Plex Sans", sans-serif !important;
+    color: var(--ura-muted) !important;
+    font-size: 0.85rem !important;
+}
+
+/* ---------------------------------------------------------------------------
+   PAGINATION — simple numbered/prev-next control. Wrap in .ura-pagination;
+   buttons inside still render as normal st.button (primary = current page).
+--------------------------------------------------------------------------- */
+.ura-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+}
+
+/* ---------------------------------------------------------------------------
+   FLOATING SUPPORT BUBBLES
+--------------------------------------------------------------------------- */
 .ura-bubbles-container {
     position: fixed;
     bottom: 1.5rem;
@@ -363,42 +600,40 @@ div[data-testid="stMetricValue"] {
 }
 
 .ura-bubble {
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
-    background-color: #1B3A75;
+    background-color: var(--ura-navy);
     color: #FFFFFF;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 10px rgba(27, 58, 117, 0.25);
+    box-shadow: 0 4px 10px rgba(15, 46, 82, 0.25);
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: background 0.15s ease;
     text-decoration: none;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     position: relative;
 }
 
 .ura-bubble:hover {
-    background-color: #FFF200;
-    color: #1B3A75;
-    transform: scale(1.08);
+    background-color: var(--ura-gold);
+    color: var(--ura-navy);
 }
 
 .ura-bubble .tooltip {
     visibility: hidden;
-    background-color: #30302F;
+    background-color: var(--ura-ink);
     color: #FFFFFF;
     text-align: center;
-    border-radius: 6px;
+    border-radius: 4px;
     padding: 4px 8px;
     position: absolute;
-    right: 54px;
-    z-index: 1;
+    right: 52px;
     opacity: 0;
     transition: opacity 0.2s;
     white-space: nowrap;
-    font-size: 0.775rem;
+    font-size: 0.75rem;
     font-weight: 500;
 }
 
@@ -407,41 +642,387 @@ div[data-testid="stMetricValue"] {
     opacity: 1;
 }
 
-/* Split Login Hero Card */
-.login-hero-panel {
-    background: linear-gradient(135deg, #122A57 0%, #1B3A75 70%, #0B1C3D 100%);
-    border-radius: 12px;
-    padding: 2.5rem;
+/* ---------------------------------------------------------------------------
+   SPLIT LOGIN SCREEN
+   Styled directly on the content <div> (.auth-brand-content /
+   .auth-action-content), NOT on the ancestor Streamlit column via :has().
+   Streamlit has renamed its internal data-testid attributes across
+   versions ("column" -> "stColumn", etc.), so an ancestor-based selector
+   can silently match nothing on a different Streamlit version — the text
+   colors still apply (plain class selectors) but the background never
+   shows up, which is exactly what produced the low-contrast screen you
+   saw. Self-contained styling on the div itself can't break this way.
+--------------------------------------------------------------------------- */
+[data-testid="stHorizontalBlock"]:has(.auth-brand-content) {
+    gap: 0.75rem !important;
+    align-items: stretch !important;
+}
+
+.auth-brand-content {
+    background: var(--ura-navy);
+    background-image: radial-gradient(circle at 85% -10%, rgba(217, 164, 65, 0.16), transparent 55%);
+    border-radius: 4px;
+    padding: 3rem 2.75rem;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     color: #FFFFFF;
-    height: 100%;
-    min-height: 450px;
+    position: relative;
+    overflow: hidden;
+}
+
+.brand-title {
+    font-family: "Fraunces", Georgia, serif !important;
+    font-size: 2.15rem !important;
+    font-weight: 600 !important;
+    line-height: 1.15 !important;
+    color: #FFFFFF !important;
+    margin-bottom: 0.6rem !important;
+}
+
+.brand-title em, .brand-title span {
+    color: var(--ura-gold) !important;
+    font-style: normal;
+}
+
+.brand-subtitle {
+    font-family: "IBM Plex Sans", sans-serif !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    color: var(--ura-gold-soft) !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    margin-bottom: 1.75rem !important;
+}
+
+.brand-accent-line {
+    width: 48px;
+    height: 3px;
+    background: repeating-linear-gradient(
+        115deg,
+        var(--ura-gold) 0px, var(--ura-gold) 6px,
+        var(--ura-terracotta) 6px, var(--ura-terracotta) 9px,
+        #FFFFFF 9px, #FFFFFF 16px
+    );
+    border-radius: 2px;
+    margin-bottom: 1.75rem;
+    display: block;
+}
+
+.brand-text {
+    font-family: "IBM Plex Sans", sans-serif !important;
+    font-size: 1rem !important;
+    line-height: 1.65 !important;
+    color: #C7D3E0 !important;
+    max-width: 90%;
+}
+
+.auth-action-content {
+    background: #FFFFFF;
+    border-radius: 4px;
+    border: 1px solid var(--ura-border);
+    padding: 3rem 2.75rem;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.auth-title {
+    font-family: "Fraunces", Georgia, serif !important;
+    color: var(--ura-navy) !important;
+    font-size: 1.6rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.85rem !important;
+}
+
+.auth-description {
+    color: var(--ura-muted) !important;
+    font-size: 1rem !important;
+    line-height: 1.65 !important;
+    margin: 0 auto !important;
+    max-width: 92%;
+}
+
+@media (max-width: 992px) {
+    [data-testid="stHorizontalBlock"]:has(.auth-brand-content) {
+        flex-direction: column !important;
+    }
+    .auth-brand-content, .auth-action-content {
+        min-height: unset;
+        padding: 2rem 1.75rem;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   SIGN-IN / REGISTER SCREEN (core/auth.py's check_login()) — the actual
+   login form, shown after the person clicks "Log In" on the split gate
+   screen above. Reuses the same navy/gold/white language and the
+   .brand-accent-line stripe so the two screens read as one continuous
+   flow instead of two different products.
+--------------------------------------------------------------------------- */
+.login-hero-panel {
+    background: var(--ura-navy);
+    background-image: radial-gradient(circle at 85% -10%, rgba(217, 164, 65, 0.16), transparent 55%);
+    border-radius: 4px;
+    padding: 3rem 2.75rem;
+    min-height: 480px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-shadow: 0 8px 24px rgba(27, 58, 117, 0.2);
+    color: #FFFFFF;
+    position: relative;
+    overflow: hidden;
 }
 
 .login-hero-title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    line-height: 1.2;
-    color: #FFFFFF;
+    font-family: "Fraunces", Georgia, serif !important;
+    font-size: 1.9rem !important;
+    font-weight: 600 !important;
+    line-height: 1.18 !important;
+    color: #FFFFFF !important;
+    margin-bottom: 0.9rem !important;
 }
 
 .login-hero-title span {
-    color: #FFF200;
+    color: var(--ura-gold) !important;
 }
 
 .login-hero-sub {
-    font-size: 0.9rem;
-    color: #E2E8F0;
-    margin-top: 0.5rem;
+    font-family: "IBM Plex Sans", sans-serif !important;
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+    color: #C7D3E0 !important;
+    max-width: 92%;
 }
 
 .login-hero-footer {
-    font-size: 0.775rem;
-    color: #94A3B8;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
     padding-top: 1rem;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: #9FB0C4;
+    font-family: "IBM Plex Sans", sans-serif;
 }
 
+.login-hero-footer strong { color: #FFFBCC; }
+
+.login-card-header {
+    text-align: center;
+    margin-bottom: 1.25rem;
+}
+
+.login-card-header-title {
+    font-family: "Fraunces", Georgia, serif !important;
+    font-size: 1.15rem !important;
+    font-weight: 600 !important;
+    color: var(--ura-navy) !important;
+    margin-top: 0.6rem !important;
+}
+
+.login-card-header-title span { color: var(--ura-terracotta) !important; }
+
+.login-card-header-sub {
+    font-family: "IBM Plex Sans", sans-serif !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase;
+    color: var(--ura-muted) !important;
+    margin-top: 0.2rem !important;
+}
+
+.login-title {
+    font-family: "Fraunces", Georgia, serif !important;
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    color: var(--ura-ink) !important;
+    margin-bottom: 0.35rem !important;
+}
+
+.login-subtitle {
+    font-family: "IBM Plex Sans", sans-serif !important;
+    font-size: 0.85rem !important;
+    color: var(--ura-muted) !important;
+    line-height: 1.55 !important;
+    margin-bottom: 1.1rem !important;
+}
+
+@media (max-width: 900px) {
+    .login-hero-panel { min-height: unset; padding: 2rem 1.75rem; }
+    .login-hero-title { font-size: 1.5rem !important; }
+}
+
+/* ---------------------------------------------------------------------------
+   RESPONSIVE — tablet / small screens. Stack the top-nav rows, shrink the
+   brand title, and let tables scroll horizontally instead of compressing.
+--------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+    .block-container {
+        padding-left: 1.1rem !important;
+        padding-right: 1.1rem !important;
+    }
+    .top-nav-main-title { font-size: 1.1rem !important; }
+    .top-nav-subtitle { font-size: 0.6rem !important; }
+    div[data-testid="stMetric"] { padding: 0.9rem 1rem 0.85rem 1rem !important; }
+    div[data-testid="stMetricValue"] { font-size: 1.25rem !important; }
+    [data-testid="stDataFrame"] { overflow-x: auto !important; }
+}
+
+@media (max-width: 640px) {
+    .top-nav-user { display: none; }
+    [data-testid="stTabs"] [data-baseweb="tab-list"] { gap: 14px !important; }
+}
+
+/* ---------------------------------------------------------------------------
+   MAINTENANCE / ANNOUNCEMENT BANNER
+--------------------------------------------------------------------------- */
+.maintenance-banner {
+    background: #FFFDE7;
+    border: 1px solid #F5E24D;
+    border-left: 3px solid var(--ura-gold);
+    border-radius: 4px;
+    padding: 1.4rem 1.5rem;
+    box-shadow: none;
+}
+
+.maintenance-header {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 0.9rem;
+}
+
+.maintenance-icon { font-size: 1.3rem; }
+
+.maintenance-title {
+    font-family: "Fraunces", Georgia, serif !important;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #6B5A00;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.maintenance-body {
+    color: #4A4200;
+    font-size: 0.94rem;
+    line-height: 1.6;
+}
+
+.maintenance-body p { margin: 0; color: #4A4200; }
+
+.maintenance-section-label {
+    display: inline-block;
+    font-family: "Fraunces", Georgia, serif !important;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #5C4D00;
+    margin-top: 0.7rem;
+    margin-bottom: 0.25rem;
+}
+
+/* ---------------------------------------------------------------------------
+   RESPONSIVE — small phones (≤ 480px)
+--------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+    /* Base spacing and typography */
+    .block-container {
+        padding-left: 0.8rem !important;
+        padding-right: 0.8rem !important;
+    }
+    
+    .top-nav-main-title { font-size: 1rem !important; }
+    .top-nav-subtitle { font-size: 0.55rem !important; }
+    
+    /* Shrink KPI cards */
+    div[data-testid="stMetric"] { padding: 0.75rem !important; }
+    div[data-testid="stMetricValue"] { font-size: 1.15rem !important; }
+    
+    /* Shrink chips/badges */
+    .ura-chip {
+        padding: 2px 6px;
+        font-size: 0.65rem;
+    }
+    
+    /* Floating support bubbles - shrink and reposition */
+    .ura-bubbles-container {
+        bottom: 0.8rem;
+        right: 0.8rem;
+        gap: 0.4rem;
+    }
+    .ura-bubble {
+        width: 36px;
+        height: 36px;
+        font-size: 0.95rem;
+    }
+    .ura-bubble .tooltip {
+        right: 44px;
+        font-size: 0.7rem;
+    }
+    
+    /* Top Navigation (app.py) & Row 2 Nav 
+       Force horizontal blocks that contain buttons/inputs to wrap gracefully
+       instead of Streamlit's default of stacking as full width blocks */
+    .st-key-top_blue_navbar [data-testid="stHorizontalBlock"],
+    [data-testid="stHorizontalBlock"]:has([data-baseweb="input"]),
+    [data-testid="stHorizontalBlock"]:has([data-baseweb="select"]) {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    /* Allow children of these wrapping rows to shrink/grow */
+    .st-key-top_blue_navbar [data-testid="column"],
+    [data-testid="stHorizontalBlock"]:has([data-baseweb="input"]) [data-testid="column"],
+    [data-testid="stHorizontalBlock"]:has([data-baseweb="select"]) [data-testid="column"] {
+        width: auto !important;
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+    }
+    
+    /* Make the nav buttons slightly smaller on tiny screens */
+    .st-key-top_blue_navbar button[kind="primary"],
+    .st-key-top_blue_navbar button[kind="secondary"] {
+        height: 32px !important;
+        font-size: 0.78rem !important;
+        padding: 0 0.5rem !important;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   EMBEDDED IFRAMES — Prevent huge fixed heights wasting space on mobile
+--------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+    /* Override components.iframe() and components.html() inline heights */
+    iframe[title="streamlit_html"],
+    iframe[title="streamlit_iframe"] {
+        height: 80vh !important;
+        max-height: 500px !important;
+    }
+    
+    /* Specific to the Power BI widget iframe inside components.html */
+    iframe.report {
+        height: 80vh !important;
+        max-height: 500px !important;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   TABLET GRID OVERRIDE (641px - 900px)
+   (Since Quick Services Grid cols_per_row = 3 is fixed in Python)
+--------------------------------------------------------------------------- */
+@media (min-width: 641px) and (max-width: 900px) {
+    /* If a row has columns set to ~33% width by Streamlit (cols_per_row=3), 
+       force them to wrap and take up 50% width each to prevent cramping. */
+    [data-testid="stHorizontalBlock"]:has(> [data-testid="column"][style*="width: 33"]) {
+        flex-wrap: wrap !important;
+    }
+    [data-testid="column"][style*="width: 33"] {
+        width: calc(50% - 0.5rem) !important;
+        flex: 1 1 calc(50% - 0.5rem) !important;
+        min-width: calc(50% - 0.5rem) !important;
+    }
+}

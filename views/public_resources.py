@@ -22,11 +22,24 @@ from core.db_announcements import announcements_get_active
 from core.db_users import user_get_by_email
 from core.db_audit import log_event
 from core.db import get_connection
-from core.constants import URA_BLUE, URA_BLUE_PALE, URA_BLUE_LIGHT, URA_DARK
 import html as html_lib
 import streamlit.components.v1 as components
 import pandas as pd
 import json
+
+# ---------------------------------------------------------------------------
+# The Power BI report navbar below is rendered inside an <iframe> via
+# components.html(), so it can't inherit assets/style.css — it needs its own
+# color constants. These are the SAME URA design tokens as style.css
+# (institutional navy / gold / terracotta), not the old core.constants blue
+# theme, so the embedded nav bar reads as part of the same product instead
+# of a different app bolted on. If style.css's palette ever changes, update
+# these four values to match.
+# ---------------------------------------------------------------------------
+URA_NAVY = "#243F8D"
+URA_NAVY_DARK = "#1A2E66"
+URA_NAVY_PALE = "#EAF0F6"
+URA_INK = "#1C2430"
 
 
 def set_single_resource_view(resource_name):
@@ -36,6 +49,8 @@ def set_single_resource_view(resource_name):
 def render_public_resources():
     is_admin = st.session_state.get("role") == "admin"
     all_resources_df = resources_get_all()
+    if not all_resources_df.empty and "id" in all_resources_df.columns:
+        all_resources_df = all_resources_df.drop_duplicates(subset="id", keep="first").reset_index(drop=True)
 
     # Viewers see resources where admin_only is False AND the resource's department is either
     # 'All' (visible to everyone) OR is in the viewer's granted user_department_access list.
@@ -102,10 +117,19 @@ def render_public_resources():
             tab_all, tab_news, tab_ai = st.tabs(["All Resources", "News Feed", "AI Assistant"])
         
         # Helper to render the grid
-        def render_grid(df_to_render):
+        def render_grid(df_to_render, context="all"):
             if df_to_render.empty:
-                st.info("No resources to display here.")
+                st.markdown(
+                    '<div class="ura-empty-state"><div class="icon">📂</div>'
+                    '<div class="title">No resources to display</div>'
+                    '<div>Nothing matches this view yet.</div></div>',
+                    unsafe_allow_html=True,
+                )
                 return
+            # NOTE (Limitation): Streamlit's st.columns() cannot be conditionally set based 
+            # on viewport width in pure Python (no native responsive breakpoint API). 
+            # We hardcode 3 columns here and rely on CSS media queries in style.css 
+            # to adjust widths (e.g. 50% on tablet) and handle mobile stacking.
             cols_per_row = 3
             for i in range(0, len(df_to_render), cols_per_row):
                 cols = st.columns(cols_per_row)
@@ -125,29 +149,30 @@ def render_public_resources():
                                     st.caption(html_lib.escape(str(row['description'])))
                                 
                                 if has_access:
-                                    st.button("View Resource", key=f"cat_view_{row['id']}", use_container_width=True, type="primary", on_click=set_single_resource_view, args=(row["business_name"],))
+                                    st.button("View Resource", key=f"cat_view_{context}_{row['id']}", use_container_width=True, type="primary", on_click=set_single_resource_view, args=(row["business_name"],))
                                 else:
-                                    if st.button("Request Access", key=f"cat_req_{row['id']}", use_container_width=True):
+                                    if st.button("Request Access", key=f"cat_req_{context}_{row['id']}", use_container_width=True):
                                         st.toast(f"Access request sent for {row['business_name']}!")
 
         user_id = st.session_state.get("user_id")
         
         with tab_all:
-            render_grid(all_resources_df)
+            render_grid(all_resources_df, context="all")
             
         if user_id:
             with tab_fav:
-                fav_ids = resources_get_favorites(user_id)
+                fav_ids = list(dict.fromkeys(resources_get_favorites(user_id)))
                 fav_df = all_resources_df[all_resources_df["id"].isin(fav_ids)].reset_index(drop=True)
-                render_grid(fav_df)
+                render_grid(fav_df, context="fav")
                 
             with tab_recent:
-                recent_ids = [r[0] for r in resources_get_recent(user_id)]
+                recent_ids_raw = [r[0] if isinstance(r, (tuple, list)) else r for r in resources_get_recent(user_id)]
+                recent_ids = list(dict.fromkeys(recent_ids_raw))  # de-dupe, preserve most-recent-first order
                 recent_df = all_resources_df[all_resources_df["id"].isin(recent_ids)].copy()
                 if not recent_df.empty:
                     recent_df['sorter'] = recent_df['id'].map({id: idx for idx, id in enumerate(recent_ids)})
                     recent_df = recent_df.sort_values('sorter').drop('sorter', axis=1).reset_index(drop=True)
-                render_grid(recent_df)
+                render_grid(recent_df, context="recent")
         with tab_news:
             dept_id = None
             if user_id:
@@ -159,7 +184,12 @@ def render_public_resources():
                     pass
             active_announcements = announcements_get_active(dept_id)
             if active_announcements.empty:
-                st.info("No active news or announcements at this time.")
+                st.markdown(
+                    '<div class="ura-empty-state"><div class="icon">📢</div>'
+                    '<div class="title">No active announcements</div>'
+                    '<div>Check back later for news and updates.</div></div>',
+                    unsafe_allow_html=True,
+                )
             else:
                 for _, ann in active_announcements.iterrows():
                     with st.container(border=True):
@@ -206,7 +236,12 @@ def render_public_resources():
         return
 
     if resources_df.empty:
-        st.info("No resources match your visibility permissions or filters.")
+        st.markdown(
+            '<div class="ura-empty-state"><div class="icon">🔒</div>'
+            '<div class="title">No resources available</div>'
+            '<div>Nothing matches your visibility permissions or filters.</div></div>',
+            unsafe_allow_html=True,
+        )
         return
 
     search_term = st.session_state.get("pr_search_term", "")
@@ -227,7 +262,12 @@ def render_public_resources():
         display_df = display_df[display_df["category"].isin(selected_categories)]
 
     if display_df.empty:
-        st.warning("No resources match your search.")
+        st.markdown(
+            '<div class="ura-empty-state"><div class="icon">🔍</div>'
+            '<div class="title">No matches</div>'
+            '<div>No resources match your search.</div></div>',
+            unsafe_allow_html=True,
+        )
         return
 
     # Ensure selected_name falls back to first available if missing or invalid
@@ -404,15 +444,15 @@ def render_public_resources():
                     st.error(msg)
         return
 
-        # MAIN AREA — default browse / search / view page (bottom duplicate removed)
-        # Read search/category/resource values from session_state (top nav strip).
-        if resources_df.empty:
-            st.info("No resources match your visibility permissions or filters.")
-            return
+    # MAIN AREA — default browse / search / view page (bottom duplicate removed)
+    # Read search/category/resource values from session_state (top nav strip).
+    if resources_df.empty:
+        st.info("No resources match your visibility permissions or filters.")
+        return
 
-        search_term = st.session_state.get("pr_search_term", "")
-        selected_categories = st.session_state.get("pr_selected_categories", [])
-        selected_name = st.session_state.get("pr_resource_select")
+    search_term = st.session_state.get("pr_search_term", "")
+    selected_categories = st.session_state.get("pr_selected_categories", [])
+    selected_name = st.session_state.get("pr_resource_select")
 
     display_df = resources_df
     if search_term and search_term.strip():
@@ -436,6 +476,7 @@ def render_public_resources():
     if not selected_name or selected_name not in available_names:
         selected_name = available_names[0]
         st.session_state["pr_resource_select"] = selected_name
+        
     selected_row = display_df[display_df["business_name"] == selected_name].iloc[0]
     resource_id = int(selected_row["id"])
 
@@ -469,7 +510,6 @@ def render_public_resources():
                 st.rerun()
 
     if selected_row.get("description"):
-
         st.markdown(html_lib.escape(str(selected_row['description'])))
 
     meta_parts = [f"Added {added_rel}", f"Updated {updated_rel}"]
@@ -659,5 +699,3 @@ def get_visible_resources(all_resources_df):
 
     mask = all_resources_df.apply(_resource_visible, axis=1)
     return all_resources_df[mask].reset_index(drop=True)
-
-

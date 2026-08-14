@@ -99,6 +99,12 @@ def delete_user_session(token):
 
 
 def check_login():
+    """The sign-in / register screen. Same navy-left / white-right split
+    the mockup uses for its login screen and that the pre-login gate page
+    in app.py already shows — the CSS classes here (login-hero-*,
+    login-card-*, login-title, login-subtitle) are all defined in
+    assets/style.css so this reuses the exact same design system instead
+    of introducing a second visual style for login."""
     import textwrap
     from core.utils import render_logo_html
     from core.db_departments import user_department_access_get, departments_get_all
@@ -118,7 +124,8 @@ def check_login():
                 <div>
                     <div style="margin-bottom: 1.5rem;">{logo_left}</div>
                     <div class="login-hero-title">URA TAX <span>ANALYTICS</span><br>PLATFORM</div>
-                    <div class="login-hero-sub">Official Digital Resource & Governance Portal of the Uganda Revenue Authority</div>
+                    <div class="brand-accent-line"></div>
+                    <div class="login-hero-sub">Official Digital Resource &amp; Governance Portal of the Uganda Revenue Authority</div>
                 </div>
                 <div class="login-hero-footer">
                     🔒 <strong>Secure Enterprise Access</strong><br>
@@ -145,7 +152,7 @@ def check_login():
 
             # ── Sign In ──────────────────────────────────────────────────
             with tab_signin:
-                with st.form("login_form"):
+                with st.form("login_form", clear_on_submit=True):
                     st.markdown('<div class="login-title">Sign in to your account</div>', unsafe_allow_html=True)
                     st.markdown(
                         '<div class="login-subtitle">Enter your credentials to access tax analytics, reports, and resources.</div>',
@@ -204,7 +211,7 @@ def check_login():
 
             # ── Create Account ────────────────────────────────────────────────
             with tab_register:
-                with st.form("register_form"):
+                with st.form("register_form", clear_on_submit=True):
                     st.markdown('<div class="login-title">Create Account</div>', unsafe_allow_html=True)
                     st.markdown(
                         '<div class="login-subtitle">Request access — an administrator will '
@@ -271,7 +278,13 @@ def check_login():
                             if reg_dept_select == "Other (please specify)"
                             else reg_dept_select
                         )
-                        success, msg = users_register(clean_email, reg_password, final_dept)
+                        _register_result = users_register(clean_email, reg_password, final_dept)
+                        if isinstance(_register_result, tuple):
+                            success, msg = _register_result
+                        else:
+                            # users_register returns just the new user id (or None/False) on some code paths
+                            success = bool(_register_result)
+                            msg = "Account created — awaiting admin approval." if success else "Registration failed."
                         if success:
                             st.success(
                                 "Account creation request submitted! An administrator must approve your account before you can log in."

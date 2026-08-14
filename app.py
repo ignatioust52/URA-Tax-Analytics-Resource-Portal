@@ -17,6 +17,13 @@ STRUCTURE: CSS lives in assets/style.css (loaded by load_css() below) rather
 than inline in this file. Each Dashboard tab is its own render_*_tab()
 function taking (where_sql, where_params, ...) so edits touch one small
 function instead of one giant render_dashboard().
+
+DESIGN: assets/style.css is the single source of truth for the URA visual
+identity (navy #243F8D / gold #FFF200 / terracotta #B54834 institutional
+theme, Fraunces + IBM Plex typography). Do not add another inline <style>
+block here or in view files — extend style.css instead so every page
+(Public Resources, User Management, Analytics, the login split-screen)
+stays visually consistent.
 """
 
 import os
@@ -53,23 +60,23 @@ def load_css(path):
         return f.read()
 
 
-
-
-
-
-# Google Fonts — loaded as real <link> tags (more reliable than @import
-# inside an f-string <style> block, which was silently getting overridden
-# by Streamlit's own built-in font-face rules).
+# Google Fonts — Fraunces (display), IBM Plex Sans (body/UI), IBM Plex Mono
+# (figures), plus Material Symbols Rounded (icons for the floating support
+# bubbles in views/public_resources.py). These are the faces style.css
+# assumes are loaded; if you change the type system, update both this link
+# and the font-family rules in style.css together.
 st.markdown(
     """
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Roboto:wght@400;500&family=Material+Symbols+Rounded" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Material+Symbols+Rounded&display=swap" rel="stylesheet">
     """,
     unsafe_allow_html=True,
 )
-st.markdown(f"<style>{load_css(CSS_PATH)}</style>", unsafe_allow_html=True)
 
+# style.css is the only theme layer for this app — every page inherits it
+# automatically. Nothing else should render a <style> block.
+st.markdown(f"<style>{load_css(CSS_PATH)}</style>", unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------------------
@@ -120,11 +127,12 @@ if st.session_state.get("session_token"):
     touch_user_session(st.session_state["session_token"])
 
 # ---------------------------------------------------------------------------
-# TOP NAVIGATION — single blue header bar. Row 1 = brand + page tabs +
-# user/logout. Row 2 (Public Resources only) = search/filter/resource-pick
-# on the left, admin Add/Edit shortcuts on the right. Nothing here is new
-# functionality — every control below is the exact same widget that used
-# to live in st.sidebar or in the "Find a Resource" section, just re-homed.
+# TOP NAVIGATION — single navy header bar, matching the mockup's topbar.
+# Row 1 = brand + page tabs + user/logout. Row 2 (Public Resources only) =
+# search/filter/resource-pick on the left, admin Add/Edit shortcuts on the
+# right. Nothing here is new functionality — every control below is the
+# exact same widget that used to live in st.sidebar or in the "Find a
+# Resource" section, just re-homed.
 # ---------------------------------------------------------------------------
 if "current_page" not in st.session_state:
     st.session_state.current_page = "Public Resources"
@@ -145,9 +153,10 @@ _visible_resources_df = (
 )
 
 # ---------------------------------------------------------------------------
-# TOP HEADER BANNER (Bright Yellow Bar)
+# TOP HEADER — single navy bar: brand + live-report status, styled by the
+# .top-nav-brand / .ura-live-badge rules in style.css.
 # ---------------------------------------------------------------------------
-with st.container(key="top_yellow_header"):
+with st.container(key="top_nav_header"):
     head_col1, head_col2 = st.columns([3, 2])
 
     with head_col1:
@@ -162,12 +171,19 @@ with st.container(key="top_yellow_header"):
         )
 
     with head_col2:
-        st.markdown('<div style="display: flex; justify-content: flex-end; align-items: center; gap: 1rem; height: 100%;">'
-                    '<span class="ura-live-badge"><span class="ura-live-dot"></span> Live report</span>'
-                    '</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div style="display: flex; justify-content: flex-end; align-items: center; gap: 1rem; height: 100%;">'
+            '<span class="ura-live-badge"><span class="ura-live-dot"></span> Live report</span>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
+
+# Signature triband divider — the mockup's single most recognizable motif,
+# used once here as the seam between the brand bar and the tab strip.
+st.markdown('<div class="ura-stripe"></div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
-# TOP NAVIGATION STRIP (Deep Navy Blue Bar)
+# TOP NAVIGATION STRIP (page tabs + user/logout, underline style)
 # ---------------------------------------------------------------------------
 with st.container(key="top_blue_navbar"):
     _nav_widths = [(1.8 if opt == "Public Resources" else 1.8) for opt in nav_options] + [4.0, 2.5, 1.4]
@@ -176,8 +192,9 @@ with st.container(key="top_blue_navbar"):
     for i, opt in enumerate(nav_options):
         with nav_cols[i]:
             _is_active = st.session_state.current_page == opt
+            tab_label = opt
             if st.button(
-                opt,
+                tab_label,
                 key=f"navbtn_{opt.replace(' ', '_')}",
                 use_container_width=True,
                 type="primary" if _is_active else "secondary",
@@ -226,7 +243,7 @@ with st.container(key="top_blue_navbar"):
                 with st.container(key="mode-card"):
                     st.markdown('<div class="ui-card-title">📋 View Mode</div>', unsafe_allow_html=True)
                     view_mode = st.radio("Mode", ["Single Resource", "Full Catalog"], horizontal=True, key="pr_view_mode", label_visibility="collapsed")
-            
+
             with col_resources:
                 if st.session_state.get("pr_view_mode") == "Single Resource":
 
@@ -290,10 +307,31 @@ if st.session_state.get("authenticated", False):
 
 active_announcements = announcements_get_active(dept_id)
 if not active_announcements.empty:
-    st.markdown('<div style="margin: 1rem 0;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="margin: 1.5rem 0;"></div>', unsafe_allow_html=True)
     for _, ann in active_announcements.iterrows():
-        st.info(f"**📢 {ann['title']}**: {ann['body']}", icon=":material/campaign:")
-    st.markdown('<div style="margin: 1rem 0;"></div>', unsafe_allow_html=True)
+        ann_title = str(ann['title'])
+        ann_body = str(ann['body'])
+
+        # Format the exact wording to have bold headers and line breaks
+        ann_body = ann_body.replace("What to Expect", "<br><br><strong class='maintenance-section-label'>What to Expect</strong><br>")
+        ann_body = ann_body.replace("System Downtime:", "<strong>System Downtime:</strong>")
+        ann_body = ann_body.replace("Data Safety:", "<strong>Data Safety:</strong>")
+        ann_body = ann_body.replace("Automatic Recovery:", "<strong>Automatic Recovery:</strong>")
+        ann_body = ann_body.replace("Next Steps", "<br><br><strong class='maintenance-section-label'>Next Steps</strong><br>")
+
+        banner_html = f"""
+        <div class="maintenance-banner">
+            <div class="maintenance-header">
+                <span class="maintenance-icon">📢</span>
+                <span class="maintenance-title">{ann_title}</span>
+            </div>
+            <div class="maintenance-body">
+                {ann_body}
+            </div>
+        </div>
+        """
+        st.markdown(banner_html, unsafe_allow_html=True)
+    st.markdown('<div style="margin: 1.5rem 0;"></div>', unsafe_allow_html=True)
 
 if st.session_state.get("authenticated", False):
     if page == "Public Resources":
@@ -304,16 +342,34 @@ if st.session_state.get("authenticated", False):
         render_analytics()
 else:
     st.markdown('<div style="height: 2rem;"></div>', unsafe_allow_html=True)
-    st.markdown('<div style="max-width: 720px; margin: 0 auto; text-align: center; padding: 3.5rem 2.5rem; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-radius: 16px; border: 2px solid #e2e8f0; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); transition: all 0.3s ease;">' +
-                '<div style="font-size: 4rem; margin-bottom: 1.5rem; animation: bounce 2s infinite;">🔒</div>'
-                '<h2 style="color: #1755A6; font-weight: 700; margin-bottom: 1rem; font-size: 1.75rem;">Authentication Required</h2>'
-                '<p style="color: #64748b; font-size: 1.1rem; line-height: 1.8; margin-bottom: 2.5rem; opacity: 0.95;">'
-                'Welcome to the <strong>URA Tax Analytics & Resource Portal</strong>. Public visitors can view active announcements above. '
-                '<br><br>To search, filter, and access interactive tax resources, Power BI reports, or account management, please log in below.'
-                '</p></div>', unsafe_allow_html=True)
-    c1, c2, c3 = st.columns([2, 1, 2])
-    with c2:
-        st.markdown('<div style="height: 0.5rem;"></div>', unsafe_allow_html=True)
-        if st.button("🔓 Log In to Continue", key="unauth_login_btn_center", type="primary", use_container_width=True):
-            st.session_state.show_login = True
-            st.rerun()
+
+    with st.container(key="auth_split_container"):
+        col_brand, col_auth = st.columns([1.1, 0.9], gap="small")
+
+        with col_brand:
+            st.markdown("""
+<div class="auth-brand-content">
+    <h1 class="brand-title">URA Tax Analytics<br>& Resource Portal</h1>
+    <p class="brand-subtitle">DEVELOPING UGANDA TOGETHER</p>
+    <div class="brand-accent-line"></div>
+    <p class="brand-text">Secure, institutional access to national revenue data, interactive tax resources, and automated analytics.</p>
+</div>
+            """, unsafe_allow_html=True)
+
+        with col_auth:
+            st.markdown("""
+<div class="auth-action-content">
+    <h2 class="auth-title">Authentication Required</h2>
+    <p class="auth-description">
+        Welcome to the <strong>URA Tax Analytics &amp; Resource Portal</strong>. Public visitors can view active announcements above.
+        <br><br>
+        To search, filter, and access interactive tax resources, Power BI reports, or account management, please log in below.
+    </p>
+</div>
+            """, unsafe_allow_html=True)
+
+            c1, c2, c3 = st.columns([0.15, 0.7, 0.15])
+            with c2:
+                if st.button("🔐 Log in to Continue", key="unauth_login_btn_split", type="primary", use_container_width=True):
+                    st.session_state.show_login = True
+                    st.rerun()
