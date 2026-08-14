@@ -1,0 +1,13 @@
+# URA Corporate Theme
+
+[theme]
+base = "light"
+primaryColor = "#1B3A75"             # Primary URA Institutional Dark Blue
+backgroundColor = "#F8FAFC"          # Light Canvas Background
+secondaryBackgroundColor = "#FFFFFF" # Surface Cards Background
+textColor = "#30302F"                # Dark Charcoal Body Text
+font = "sans serif"
+
+[client]
+toolbarMode = "minimal"
+
