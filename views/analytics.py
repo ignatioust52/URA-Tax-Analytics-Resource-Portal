@@ -27,6 +27,12 @@ def render_analytics():
     # Filter only resource_view actions
     views_df = audit_df[audit_df["action"] == "resource_view"]
 
+    # Filter out views for resources that have been deleted
+    from core.db_resources import resources_get_all
+    active_resources_df = resources_get_all()
+    active_names = active_resources_df["business_name"].tolist() if not active_resources_df.empty else []
+    views_df = views_df[views_df["resource_id"].isin(active_names)]
+
     if views_df.empty:
         st.info("No resource view logs available yet.")
         return
