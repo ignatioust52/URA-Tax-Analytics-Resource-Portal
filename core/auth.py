@@ -159,9 +159,9 @@ def check_login():
                         unsafe_allow_html=True,
                     )
                     email_input = st.text_input(
-                        "Email Address", value="", placeholder="e.g. user@ura.go.ug"
+                        "Email Address", value="", placeholder="e.g. user@ura.go.ug", key="login_email"
                     )
-                    password_input = st.text_input("Password", type="password")
+                    password_input = st.text_input("Password", type="password", key="login_password")
                     submitted = st.form_submit_button("Sign In", use_container_width=True, type="primary")
 
                 if submitted:
@@ -205,6 +205,11 @@ def check_login():
                                 st.query_params["session_token"] = _session_token
                                 from core.db_audit import log_event as _log
                                 _log(str(user["email"]), "login")
+                                
+                                # Clear form inputs
+                                if "login_email" in st.session_state: del st.session_state["login_email"]
+                                if "login_password" in st.session_state: del st.session_state["login_password"]
+                                
                                 st.rerun()
                             else:
                                 st.error("Invalid email or password.")
@@ -286,6 +291,8 @@ def check_login():
                             success = bool(_register_result)
                             msg = "Account created — awaiting admin approval." if success else "Registration failed."
                         if success:
+                            for k in ["reg_email", "reg_password", "reg_confirm", "reg_dept_other", "reg_dept_select"]:
+                                if k in st.session_state: del st.session_state[k]
                             st.success(
                                 "Account creation request submitted! An administrator must approve your account before you can log in."
                             )

@@ -1,8 +1,10 @@
 import pandas as pd
+import streamlit as st
 from core.db import get_connection
 from core.db_departments import resource_department_access_set
 
 
+@st.cache_data(ttl=60)
 def resources_get_all():
     conn = get_connection()
     query = """
@@ -49,6 +51,7 @@ def resources_create(page_name, business_name, description, category, url, admin
     cur.close()
     resource_department_access_set(new_id, dept_id_list)
     resources_log_audit(new_id, "create", added_by, f"Created '{business_name}'")
+    st.cache_data.clear()
     return new_id
 
 
@@ -69,6 +72,7 @@ def resources_update(resource_id, page_name, business_name, description, categor
     cur.close()
     resource_department_access_set(int(resource_id), dept_id_list)
     resources_log_audit(int(resource_id), "update", last_edited_by, f"Updated '{business_name}'")
+    st.cache_data.clear()
 
 
 def resources_delete(resource_id, business_name, deleted_by):
@@ -81,6 +85,7 @@ def resources_delete(resource_id, business_name, deleted_by):
         cur.execute("DELETE FROM resource_department_access WHERE resource_id = %s", (int(resource_id),))
         cur.execute("DELETE FROM public_resources WHERE id = %s", (int(resource_id),))
         conn.commit()
+        st.cache_data.clear()
     except Exception as e:
         conn.rollback()
         raise

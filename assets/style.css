@@ -64,6 +64,11 @@ footer { visibility: hidden; }
     margin: 0 auto !important;
 }
 
+/* Disable cross-fade page transition */
+.stApp, .stApp > header, div[data-testid="stAppViewBlockContainer"], div[data-testid="stAppViewContainer"] {
+    transition: none !important;
+}
+
 /* ---------------------------------------------------------------------------
    TYPOGRAPHY
 --------------------------------------------------------------------------- */
