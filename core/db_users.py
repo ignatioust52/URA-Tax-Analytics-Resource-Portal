@@ -9,6 +9,7 @@ users_approve / users_toggle_active / users_delete all enforce the
 
 import bcrypt
 import pandas as pd
+import streamlit as st
 
 from core.db import get_connection
 from core.db_departments import user_department_access_set
@@ -29,6 +30,7 @@ def user_get_by_email(email):
     return df.iloc[0].to_dict()
 
 
+@st.cache_data(ttl=60)
 def users_get_all():
     """Returns all non-pending users (active + disabled) ordered by id."""
     conn = get_connection()
@@ -79,6 +81,7 @@ def users_create(email, password_raw, role, dept_id_list, status="active"):
     cur.close()
     if dept_id_list:
         user_department_access_set(new_id, dept_id_list)
+    st.cache_data.clear()
     return new_id
 
 
@@ -120,6 +123,7 @@ def users_approve(user_id, role, dept_id_list):
     conn.commit()
     cur.close()
     user_department_access_set(int(user_id), dept_id_list)
+    st.cache_data.clear()
 
 
 def users_reject(user_id):
@@ -138,6 +142,7 @@ def users_reject(user_id):
     )
     conn.commit()
     cur.close()
+    st.cache_data.clear()
 
 
 def users_toggle_active(user_id):
@@ -171,6 +176,7 @@ def users_toggle_active(user_id):
     )
     conn.commit()
     cur.close()
+    st.cache_data.clear()
     return True, "Updated user account status."
 
 
@@ -209,6 +215,7 @@ def users_delete(user_id):
         return False, f"Failed to delete user: {str(e)}"
     
     cur.close()
+    st.cache_data.clear()
     return True, "User account deleted."
 
 
@@ -237,6 +244,7 @@ def users_update_role_department(user_id, role, dept_id_list):
     conn.commit()
     cur.close()
     user_department_access_set(int(user_id), dept_id_list)
+    st.cache_data.clear()
     return True, "User role and department access updated."
 
 

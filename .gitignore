@@ -11,3 +11,7 @@
 __pycache__/
 _reference/
 another/
+
+# Backups
+backups/
+*.dump

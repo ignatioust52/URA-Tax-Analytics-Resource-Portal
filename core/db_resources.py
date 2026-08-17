@@ -51,7 +51,7 @@ def resources_create(page_name, business_name, description, category, url, admin
     cur.close()
     resource_department_access_set(new_id, dept_id_list)
     resources_log_audit(new_id, "create", added_by, f"Created '{business_name}'")
-    st.cache_data.clear()
+    resources_get_all.clear()
     return new_id
 
 
@@ -72,7 +72,7 @@ def resources_update(resource_id, page_name, business_name, description, categor
     cur.close()
     resource_department_access_set(int(resource_id), dept_id_list)
     resources_log_audit(int(resource_id), "update", last_edited_by, f"Updated '{business_name}'")
-    st.cache_data.clear()
+    resources_get_all.clear()
 
 
 def resources_delete(resource_id, business_name, deleted_by):
@@ -85,7 +85,7 @@ def resources_delete(resource_id, business_name, deleted_by):
         cur.execute("DELETE FROM resource_department_access WHERE resource_id = %s", (int(resource_id),))
         cur.execute("DELETE FROM public_resources WHERE id = %s", (int(resource_id),))
         conn.commit()
-        st.cache_data.clear()
+        resources_get_all.clear()
     except Exception as e:
         conn.rollback()
         raise

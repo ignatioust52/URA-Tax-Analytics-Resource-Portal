@@ -273,8 +273,9 @@ div[data-testid="stContainer"][key="top_blue_navbar"] button[kind="secondary"]:h
     background: var(--ura-surface) !important;
     border-radius: 4px !important;
     border: 1px solid var(--ura-border) !important;
-    box-shadow: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
     position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
 }
 
 [data-testid="stVerticalBlockBorderWrapper"]::before {
@@ -291,8 +292,10 @@ div[data-testid="stContainer"][key="top_blue_navbar"] button[kind="secondary"]:h
     );
 }
 
-[data-testid="stVerticalBlockBorderWrapper"]:hover {
+[data-testid="stVerticalBlockBorderWrapper"]:hover, .ui-card:hover {
     border-color: var(--ura-navy) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 12px rgba(36, 63, 141, 0.1) !important;
 }
 
 .ui-card-title {
@@ -321,7 +324,7 @@ div[data-testid="stForm"] button[type="submit"] {
     transition: all 0.2s ease !important;
     font-family: "IBM Plex Sans", sans-serif !important;
     letter-spacing: 0 !important;
-    box-shadow: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
     transform: none !important;
 }
 
@@ -336,6 +339,8 @@ button[kind="primary"]:hover,
 div[data-testid="stForm"] button[type="submit"]:hover {
     background: var(--ura-navy-dark) !important;
     color: #FFFFFF !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(36, 63, 141, 0.2) !important;
 }
 
 button[kind="primary"]:active,
@@ -353,6 +358,8 @@ button[kind="secondary"] {
 button[kind="secondary"]:hover {
     background-color: var(--ura-canvas) !important;
     border-color: var(--ura-navy) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08) !important;
 }
 
 /* ---------------------------------------------------------------------------

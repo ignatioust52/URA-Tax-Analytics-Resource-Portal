@@ -321,13 +321,15 @@ def render_user_management():
                                         st.rerun()
 
                         st.markdown('<div class="section-title" style="font-size: 0.92rem; margin-top: 0.9rem;">Grant New Permission</div>', unsafe_allow_html=True)
-                        with st.form("grant_abac_form"):
-                            new_key = st.text_input("Permission Key (e.g. export.large)")
-                            reason = st.text_input("Reason")
+                        with st.form("grant_abac_form", clear_on_submit=True):
+                            new_key = st.text_input("Permission Key (e.g. export.large)", key="grant_abac_key")
+                            reason = st.text_input("Reason", key="grant_abac_reason")
                             if st.form_submit_button("Grant Permission", type="primary"):
                                 if new_key.strip():
                                     users_grant_special_permission(u_id, new_key.strip(), st.session_state.get("user_id"), reason)
                                     st.success("Permission granted!")
+                                    if "grant_abac_key" in st.session_state: del st.session_state["grant_abac_key"]
+                                    if "grant_abac_reason" in st.session_state: del st.session_state["grant_abac_reason"]
                                     st.rerun()
                                 else:
                                     st.error("Key is required.")
@@ -403,9 +405,9 @@ def render_user_management():
                                     st.error(msg)
 
             with st.form("create_user_form", clear_on_submit=True):
-                new_email = st.text_input("User Email", placeholder="e.g. officer@ura.go.ug")
-                new_password = st.text_input("Temporary Password", type="password")
-                new_role = st.selectbox("Role", options=["viewer", "admin"])
+                new_email = st.text_input("User Email", placeholder="e.g. officer@ura.go.ug", key="create_user_email")
+                new_password = st.text_input("Temporary Password", type="password", key="create_user_pwd")
+                new_role = st.selectbox("Role", options=["viewer", "admin"], key="create_user_role")
 
                 st.markdown("**Department Access** (select all that apply):")
                 if not _dept_df_create.empty:
@@ -437,6 +439,8 @@ def render_user_management():
                                     clean_email, new_password, new_role, _dept_names
                                 )
                                 st.success(f"Created account for '{clean_email}'.")
+                                if "create_user_email" in st.session_state: del st.session_state["create_user_email"]
+                                if "create_user_pwd" in st.session_state: del st.session_state["create_user_pwd"]
                                 st.rerun()
                             except Exception as e:
                                 st.error(f"Failed to create user: {e}")
@@ -471,8 +475,8 @@ def render_user_management():
 
         with st.expander("➕ Create New Announcement", expanded=False, icon=":material/add:"):
             with st.form("new_announce_form", clear_on_submit=True):
-                title = st.text_input("Title (e.g. Scheduled Maintenance)")
-                body = st.text_area("Message Body")
+                title = st.text_input("Title (e.g. Scheduled Maintenance)", key="ann_title")
+                body = st.text_area("Message Body", key="ann_body")
                 dept_df = departments_get_all()
                 dept_options = {"All Departments (Global)": None}
                 for _, d in dept_df.iterrows():
@@ -489,6 +493,8 @@ def render_user_management():
                             st.session_state.get("user_email")
                         )
                         st.success("Announcement published!")
+                        if "ann_title" in st.session_state: del st.session_state["ann_title"]
+                        if "ann_body" in st.session_state: del st.session_state["ann_body"]
                         st.rerun()
 
         ann_df = announcements_get_all()

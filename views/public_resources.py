@@ -327,11 +327,11 @@ def render_public_resources():
                 st.warning("Paste a URL above first, then click Test Link.")
 
         with st.form("add_resource_form", clear_on_submit=True):
-            new_page = st.text_input("Page Name")
-            new_business = st.text_input("Business / Organization Name")
-            new_description = st.text_area("Description")
-            new_category = st.text_input("Category (e.g. Government, URA, Partner)")
-            new_url = st.text_input("URL (e.g. Power BI embed link, website, etc.)")
+            new_page = st.text_input("Page Name", key="add_res_page")
+            new_business = st.text_input("Business / Organization Name", key="add_res_business")
+            new_description = st.text_area("Description", key="add_res_desc")
+            new_category = st.text_input("Category (e.g. Government, URA, Partner)", key="add_res_cat")
+            new_url = st.text_input("URL (e.g. Power BI embed link, website, etc.)", key="add_res_url")
             
             if is_admin:
                 st.markdown("**Department Visibility:**")
@@ -366,6 +366,11 @@ def render_public_resources():
                         st.success(f"Added '{new_business}'.")
                     else:
                         st.success(f"Suggested '{new_business}'. It will appear once approved by an admin.")
+                    
+                    # Clear form inputs manually
+                    for k in ["add_res_page", "add_res_business", "add_res_desc", "add_res_cat", "add_res_url"]:
+                        if k in st.session_state: del st.session_state[k]
+
                     st.cache_data.clear()
                     st.session_state.resource_view = "browse"
                     st.rerun()
@@ -389,11 +394,11 @@ def render_public_resources():
 
         st.markdown(f'<div class="section-title">Edit — {html_lib.escape(str(row["business_name"]))}</div>', unsafe_allow_html=True)
         with st.form("edit_resource_form"):
-            edit_page = st.text_input("Page Name", value=row["page_name"])
-            edit_business = st.text_input("Business Name", value=row["business_name"])
-            edit_description = st.text_area("Description", value=row["description"] or "")
-            edit_category = st.text_input("Category", value=row["category"] or "")
-            edit_url = st.text_input("URL", value=row["url"])
+            edit_page = st.text_input("Page Name", value=row["page_name"], key="edit_res_page")
+            edit_business = st.text_input("Business Name", value=row["business_name"], key="edit_res_business")
+            edit_description = st.text_area("Description", value=row["description"] or "", key="edit_res_desc")
+            edit_category = st.text_input("Category", value=row["category"] or "", key="edit_res_cat")
+            edit_url = st.text_input("URL", value=row["url"], key="edit_res_url")
             _current_res_depts = resource_department_access_get(int(row["id"]))
             st.markdown("**Department Visibility:**")
             edit_visible_all = st.checkbox("Visible to everyone (All)", value=(len(_current_res_depts) == 0), key="edit_res_all")
@@ -422,6 +427,10 @@ def render_public_resources():
                     dept_ids_to_save = [] if edit_visible_all else edit_dept_ids
                     resources_update(int(row["id"]), edit_page, edit_business, edit_description, edit_category, edit_url, edit_admin_only, dept_ids_to_save, current_user)
                     st.success("Updated.")
+                    
+                    for k in ["edit_res_page", "edit_res_business", "edit_res_desc", "edit_res_cat", "edit_res_url"]:
+                        if k in st.session_state: del st.session_state[k]
+
                     st.cache_data.clear()
                     st.session_state.resource_view = "browse"
                     st.rerun()
