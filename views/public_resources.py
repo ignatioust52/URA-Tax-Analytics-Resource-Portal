@@ -235,46 +235,6 @@ def render_public_resources():
 
         return
 
-    if resources_df.empty:
-        st.markdown(
-            '<div class="ura-empty-state"><div class="icon">🔒</div>'
-            '<div class="title">No resources available</div>'
-            '<div>Nothing matches your visibility permissions or filters.</div></div>',
-            unsafe_allow_html=True,
-        )
-        return
-
-    search_term = st.session_state.get("pr_search_term", "")
-    selected_categories = st.session_state.get("pr_selected_categories", [])
-    selected_name = st.session_state.get("pr_resource_select")
-
-    display_df = resources_df
-    if search_term and search_term.strip():
-        term = search_term.strip().lower()
-        mask = (
-            display_df["page_name"].str.lower().str.contains(term, na=False)
-            | display_df["business_name"].str.lower().str.contains(term, na=False)
-            | display_df["category"].fillna("").str.lower().str.contains(term, na=False)
-        )
-        display_df = display_df[mask]
-
-    if selected_categories:
-        display_df = display_df[display_df["category"].isin(selected_categories)]
-
-    if display_df.empty:
-        st.markdown(
-            '<div class="ura-empty-state"><div class="icon">🔍</div>'
-            '<div class="title">No matches</div>'
-            '<div>No resources match your search.</div></div>',
-            unsafe_allow_html=True,
-        )
-        return
-
-    # Ensure selected_name falls back to first available if missing or invalid
-    available_names = list(display_df["business_name"])
-    if not selected_name or selected_name not in available_names:
-        selected_name = available_names[0]
-        st.session_state["pr_resource_select"] = selected_name
     # MAIN AREA — "Add New Resource" page
 
     # --- URA-BUBBLES FLOATING PANEL ---
@@ -453,6 +413,46 @@ def render_public_resources():
                     st.error(msg)
         return
 
+    if resources_df.empty:
+        st.markdown(
+            '<div class="ura-empty-state"><div class="icon">🔒</div>'
+            '<div class="title">No resources available</div>'
+            '<div>Nothing matches your visibility permissions or filters.</div></div>',
+            unsafe_allow_html=True,
+        )
+        return
+
+    search_term = st.session_state.get("pr_search_term", "")
+    selected_categories = st.session_state.get("pr_selected_categories", [])
+    selected_name = st.session_state.get("pr_resource_select")
+
+    display_df = resources_df
+    if search_term and search_term.strip():
+        term = search_term.strip().lower()
+        mask = (
+            display_df["page_name"].str.lower().str.contains(term, na=False)
+            | display_df["business_name"].str.lower().str.contains(term, na=False)
+            | display_df["category"].fillna("").str.lower().str.contains(term, na=False)
+        )
+        display_df = display_df[mask]
+
+    if selected_categories:
+        display_df = display_df[display_df["category"].isin(selected_categories)]
+
+    if display_df.empty:
+        st.markdown(
+            '<div class="ura-empty-state"><div class="icon">🔍</div>'
+            '<div class="title">No matches</div>'
+            '<div>No resources match your search.</div></div>',
+            unsafe_allow_html=True,
+        )
+        return
+
+    # Ensure selected_name falls back to first available if missing or invalid
+    available_names = list(display_df["business_name"])
+    if not selected_name or selected_name not in available_names:
+        selected_name = available_names[0]
+        st.session_state["pr_resource_select"] = selected_name
     # MAIN AREA — default browse / search / view page (bottom duplicate removed)
     # Read search/category/resource values from session_state (top nav strip).
     if resources_df.empty:
