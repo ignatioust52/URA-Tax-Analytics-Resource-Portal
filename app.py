@@ -40,7 +40,7 @@ load_dotenv()
 # ---------------------------------------------------------------------------
 st.set_page_config(
     page_title="URA Tax Dashboard",
-    page_icon="📊",
+    page_icon="assets/URA-logo.png",
     layout="wide",
     initial_sidebar_state="expanded",
 )
