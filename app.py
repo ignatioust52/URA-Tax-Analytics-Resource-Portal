@@ -372,13 +372,13 @@ else:
     <p class="auth-description">
         Welcome to the <strong>URA Tax Analytics &amp; Resource Portal</strong>. Public visitors can view active announcements above.
         <br><br>
-        To search, filter, and access interactive tax resources, Power BI reports, or account management, please log in below.
+        To search, filter, and access interactive tax resources, Power BI reports, or account management, please log in or create an account below.
     </p>
 </div>
             """, unsafe_allow_html=True)
 
             c1, c2, c3 = st.columns([0.15, 0.7, 0.15])
             with c2:
-                if st.button("🔐 Log in to Continue", key="unauth_login_btn_split", type="primary", use_container_width=True):
+                if st.button("🔐 Log In / Create Account", key="unauth_login_btn_split", type="primary", use_container_width=True):
                     st.session_state.show_login = True
                     st.rerun()
