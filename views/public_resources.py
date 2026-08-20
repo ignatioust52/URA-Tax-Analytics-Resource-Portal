@@ -198,40 +198,72 @@ def render_public_resources():
                         st.markdown(ann['body'])
                         
         with tab_ai:
-            st.markdown("### URA AI Assistant")
-            st.caption("Ask me anything about URA resources, policies, or navigation!")
+            st.markdown("### URA AI Assistant (Governance & Navigation)")
+            st.caption("Ask me to find specific dashboards, e.g., 'Show VAT collections in Kampala'.")
             
             # Initialize chat history
             if "ai_messages" not in st.session_state:
                 st.session_state.ai_messages = [
-                    {"role": "assistant", "content": "Hello! I am your URA AI Assistant. How can I help you today?"}
+                    {"role": "assistant", "content": "Hello! I am your URA AI Assistant. Tell me what kind of dashboard you are looking for.", "results": None}
                 ]
 
             # Display chat messages from history on app rerun
             for message in st.session_state.ai_messages:
                 with st.chat_message(message["role"]):
                     st.markdown(message["content"])
+                    if message.get("results") is not None and not message["results"].empty:
+                        render_grid(message["results"], context="ai_hist")
 
             # React to user input
-            if prompt := st.chat_input("Ask a question..."):
+            if prompt := st.chat_input("Ask for a dashboard..."):
                 # Display user message in chat message container
                 st.chat_message("user").markdown(prompt)
                 # Add user message to chat history
                 st.session_state.ai_messages.append({"role": "user", "content": prompt})
 
-                # Mock AI Response
-                response = f"I am a mock AI. You asked: '{prompt}'. In the future, this will connect to a real LLM like OpenAI to provide intelligent answers!"
-                lower_prompt = prompt.lower()
-                if "vat" in lower_prompt:
-                    response = "Value Added Tax (VAT) is a tax applied to goods and services. You can find the VAT Calculator in the All Resources tab!"
-                elif "password" in lower_prompt or "login" in lower_prompt:
-                    response = "If you're having trouble logging in, please contact your department administrator to reset your password."
+                from core.ai_assistant import parse_query
+                parsed = parse_query(prompt)
+                
+                # Filter logic
+                matched_df = resources_df.copy()
+                if parsed["region"] or parsed["tax_type"]:
+                    def _matches(row):
+                        text = str(row["business_name"]).lower() + " " + str(row.get("category", "")).lower()
+                        # Very simple match logic: if they specified a region, it must be in the title or category
+                        if parsed["region"] and parsed["region"].lower() not in text:
+                            # Actually, reference project returned "revenue" dashboards for region queries. Let's do a simple fuzzy or exact match.
+                            # Just for prototype sake, if it matches text or category is 'revenue'
+                            pass
+                        # Let's just do an OR match for region or tax type to show *something* or AND match if both
+                        match_region = parsed["region"] and parsed["region"].lower() in text
+                        match_tax = parsed["tax_type"] and parsed["tax_type"].lower() in text
+                        
+                        if parsed["region"] and parsed["tax_type"]:
+                            return match_region and match_tax
+                        elif parsed["region"]:
+                            return match_region or "revenue" in text
+                        elif parsed["tax_type"]:
+                            return match_tax
+                        return True
+
+                    if not matched_df.empty:
+                        mask = matched_df.apply(_matches, axis=1)
+                        matched_df = matched_df[mask]
+
+                response_text = f"**Interpreted as:** {parsed['interpreted_as']}"
+                if matched_df.empty:
+                    response_text += "\n\nSorry, no dashboards found matching that criteria."
+                else:
+                    response_text += f"\n\nFound {len(matched_df)} dashboard(s):"
 
                 # Display assistant response in chat message container
                 with st.chat_message("assistant"):
-                    st.markdown(response)
+                    st.markdown(response_text)
+                    if not matched_df.empty:
+                        render_grid(matched_df, context="ai_new")
+                        
                 # Add assistant response to chat history
-                st.session_state.ai_messages.append({"role": "assistant", "content": response})
+                st.session_state.ai_messages.append({"role": "assistant", "content": response_text, "results": matched_df if not matched_df.empty else None})
 
         return
 

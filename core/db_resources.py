@@ -213,3 +213,22 @@ def resources_get_recent(user_id, limit=5):
             recents.append(r_id)
     cur.close()
     return recents
+
+def resources_update_approval(resource_id, status, user_id, notes=""):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE public_resources SET approval_status = %s WHERE id = %s",
+        (status, int(resource_id)),
+    )
+    # Log lifecycle event
+    cur.execute(
+        """
+        INSERT INTO public_resource_lifecycle_events (resource_id, stage, actor_user_id, notes)
+        VALUES (%s, %s, %s, %s)
+        """,
+        (int(resource_id), status, user_id, notes)
+    )
+    conn.commit()
+    cur.close()
+    resources_get_all.clear()

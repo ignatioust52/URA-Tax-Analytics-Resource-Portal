@@ -147,6 +147,7 @@ nav_options = ["Public Resources"]
 if is_admin:
     nav_options.append("User Management")
     nav_options.append("Analytics")
+    nav_options.append("Governance")
 
 page = st.session_state.current_page
 
@@ -345,6 +346,9 @@ if st.session_state.get("authenticated", False):
         render_user_management()
     elif page == "Analytics" and is_admin:
         render_analytics()
+    elif page == "Governance" and is_admin:
+        from views.governance import render_governance
+        render_governance()
 else:
     st.markdown('<div style="height: 2rem;"></div>', unsafe_allow_html=True)
 
