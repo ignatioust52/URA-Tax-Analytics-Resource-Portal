@@ -9,7 +9,7 @@ users_approve / users_toggle_active / users_delete all enforce the
 
 import bcrypt
 import pandas as pd
-import streamlit as st
+
 
 from core.db import get_connection
 from core.db_departments import user_department_access_set
@@ -30,7 +30,7 @@ def user_get_by_email(email):
     return df.iloc[0].to_dict()
 
 
-@st.cache_data(ttl=60)
+
 def users_get_all():
     """Returns all non-pending users (active + disabled) ordered by id."""
     conn = get_connection()
@@ -59,29 +59,32 @@ def users_get_pending():
 def users_create(email, password_raw, role, dept_id_list, status="active"):
     """
     Admin-path account creation — bypasses the self-registration queue.
+    role         : role name string, e.g. 'admin' or 'viewer'.
     dept_id_list : list of department IDs to grant access immediately.
     status       : 'active' for admin-created accounts (default).
-    NOTE: is_active mirrors status throughout the app (redundant-but-safe;
-    removing is_active would be a larger destructive migration).
     """
     hashed = bcrypt.hashpw(password_raw.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
     conn = get_connection()
     cur = conn.cursor()
     is_active = (status == "active")
+    # Look up the role_id from the roles table by name (case-insensitive).
+    cur.execute("SELECT role_id FROM roles WHERE LOWER(name) = LOWER(%s)", (role,))
+    role_row = cur.fetchone()
+    role_id = role_row[0] if role_row else None
     cur.execute(
         """
-        INSERT INTO app_users (email, password_hash, role_id, department, is_active, status)
-        VALUES (%s, %s, %s, '', %s, %s)
+        INSERT INTO app_users (email, password_hash, role_id, role, department, is_active, status)
+        VALUES (%s, %s, %s, %s, '', %s, %s)
         RETURNING id
         """,
-        (email.strip().lower(), hashed, role if role else None, is_active, status),
+        (email.strip().lower(), hashed, role_id, role.lower() if role else None, is_active, status),
     )
     new_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
     if dept_id_list:
         user_department_access_set(new_id, dept_id_list)
-    st.cache_data.clear()
+    
     return new_id
 
 
@@ -97,8 +100,8 @@ def users_register(email, password_raw, requested_department):
     cur.execute(
         """
         INSERT INTO app_users
-            (email, password_hash, role, department, is_active, status, requested_department)
-        VALUES (%s, %s, NULL, '', FALSE, 'pending', %s)
+            (email, password_hash, role_id, role, department, is_active, status, requested_department)
+        VALUES (%s, %s, NULL, NULL, '', FALSE, 'pending', %s)
         RETURNING id
         """,
         (email.strip().lower(), hashed, requested_department),
@@ -113,17 +116,26 @@ def users_approve(user_id, role, dept_id_list):
     """
     Approve a pending user: set status='active', is_active=TRUE, assign role,
     and grant department access via user_department_access.
+    Both role_id (FK) and legacy role (varchar) are kept in sync.
     """
     conn = get_connection()
     cur = conn.cursor()
+    # Look up role_id from roles table
+    cur.execute("SELECT role_id FROM roles WHERE LOWER(name) = LOWER(%s)", (role,))
+    role_row = cur.fetchone()
+    role_id = role_row[0] if role_row else None
     cur.execute(
-        "UPDATE app_users SET status = 'active', is_active = TRUE, role_id = (SELECT role_id FROM roles WHERE LOWER(name) = LOWER(%s)) WHERE id = %s",
-        (role, int(user_id)),
+        """
+        UPDATE app_users
+        SET status = 'active', is_active = TRUE, role_id = %s, role = %s
+        WHERE id = %s
+        """,
+        (role_id, role.lower() if role else None, int(user_id)),
     )
     conn.commit()
     cur.close()
     user_department_access_set(int(user_id), dept_id_list)
-    st.cache_data.clear()
+    
 
 
 def users_reject(user_id):
@@ -142,7 +154,7 @@ def users_reject(user_id):
     )
     conn.commit()
     cur.close()
-    st.cache_data.clear()
+    
 
 
 def users_toggle_active(user_id):
@@ -176,7 +188,7 @@ def users_toggle_active(user_id):
     )
     conn.commit()
     cur.close()
-    st.cache_data.clear()
+    
     return True, "Updated user account status."
 
 
@@ -215,7 +227,7 @@ def users_delete(user_id):
         return False, f"Failed to delete user: {str(e)}"
     
     cur.close()
-    st.cache_data.clear()
+    
     return True, "User account deleted."
 
 
@@ -244,7 +256,7 @@ def users_update_role_department(user_id, role, dept_id_list):
     conn.commit()
     cur.close()
     user_department_access_set(int(user_id), dept_id_list)
-    st.cache_data.clear()
+    
     return True, "User role and department access updated."
 
 

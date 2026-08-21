@@ -16,7 +16,7 @@ Public API:
 """
 
 import pandas as pd
-import streamlit as st
+
 
 from core.db import get_connection
 
@@ -49,7 +49,7 @@ def log_event(
         # Logging must never crash the app.
         pass
 
-@st.cache_data(ttl=60)
+
 def get_audit_log(limit: int = 200) -> pd.DataFrame:
     """
     Return the most recent `limit` audit events, newest first.

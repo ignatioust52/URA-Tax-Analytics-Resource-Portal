@@ -1,8 +1,8 @@
 import pandas as pd
-import streamlit as st
+
 from core.db import get_connection
 
-@st.cache_data(ttl=60)
+
 def departments_get_all():
     """Returns all departments from the departments table, ordered by name.
     Returns an empty DataFrame if the table doesn't exist yet (pre-migration).
@@ -29,7 +29,7 @@ def departments_create(name):
     new_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
-    st.cache_data.clear()
+    
     return new_id
 
 
@@ -42,7 +42,7 @@ def departments_update(dept_id, new_name):
     cur.execute("UPDATE departments SET name = %s WHERE id = %s", (new_name.strip(), int(dept_id)))
     conn.commit()
     cur.close()
-    st.cache_data.clear()
+    
     return True, "Department renamed."
 
 
@@ -58,11 +58,11 @@ def departments_delete(dept_id):
     cur.execute("DELETE FROM departments WHERE id = %s", (int(dept_id),))
     conn.commit()
     cur.close()
-    st.cache_data.clear()
+    
     return True, "Department deleted."
 
 
-@st.cache_data(ttl=60)
+
 def user_department_access_get(user_id):
     """Returns a list of department *names* granted to the given user.
     Returns an empty list if the table doesn't exist yet (pre-migration).
@@ -98,10 +98,10 @@ def user_department_access_set(user_id, dept_id_list):
         )
     conn.commit()
     cur.close()
-    st.cache_data.clear()
+    
 
 
-@st.cache_data(ttl=60)
+
 def resource_department_access_get(resource_id):
     """Returns a list of department *names* granted to the given resource.
     An empty list means 'visible to everyone' when combined with the
@@ -138,10 +138,10 @@ def resource_department_access_set(resource_id, dept_id_list):
         )
     conn.commit()
     cur.close()
-    st.cache_data.clear()
+    
 
 
-@st.cache_data(ttl=60)
+
 def resources_get_department_map():
     """Returns {resource_id: [department names]} for every resource that has
     specific department access rows. Resources with no rows here are visible

@@ -34,7 +34,7 @@ def humanize_dt(dt):
 import os, base64, streamlit as st
 LOGO_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "URA-logo.png")
 
-@st.cache_data
+
 def get_logo_base64():
     if not os.path.exists(LOGO_PATH):
         return None

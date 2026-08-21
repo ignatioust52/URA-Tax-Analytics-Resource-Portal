@@ -1,8 +1,8 @@
 import os
 import psycopg2
-import streamlit as st
 
-@st.cache_resource
+
+
 def _create_connection():
     required = ["PGHOST", "PGPORT", "PGDATABASE", "PGUSER", "PGPASSWORD"]
     missing = [v for v in required if not os.getenv(v)]
@@ -27,6 +27,6 @@ def get_connection():
         with conn.cursor() as cur:
             cur.execute("SELECT 1")
     except (psycopg2.OperationalError, psycopg2.InterfaceError):
-        st.cache_resource.clear()
+
         conn = _create_connection()
     return conn

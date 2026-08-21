@@ -1,8 +1,8 @@
 import pandas as pd
-import streamlit as st
+
 from core.db import get_connection
 
-@st.cache_data(ttl=60)
+
 def announcements_get_active(department_id=None):
     conn = get_connection()
     # Fetch active announcements where audience_department_id is null (global) or matches user department
@@ -26,7 +26,7 @@ def announcements_get_active(department_id=None):
         df = pd.read_sql(query, conn)
     return df
 
-@st.cache_data(ttl=60)
+
 def announcements_get_all():
     conn = get_connection()
     query = "SELECT * FROM announcements ORDER BY published_at DESC"
@@ -41,8 +41,8 @@ def announcements_create(title, body, audience_department_id, published_by, expi
     """
     cur.execute(query, (title, body, audience_department_id, published_by, expires_at))
     conn.commit()
-    announcements_get_all.clear()
-    announcements_get_active.clear()
+
+
 
 def announcements_update(announcement_id, title, body, audience_department_id, expires_at, is_active):
     conn = get_connection()
@@ -54,13 +54,13 @@ def announcements_update(announcement_id, title, body, audience_department_id, e
     """
     cur.execute(query, (title, body, audience_department_id, expires_at, is_active, announcement_id))
     conn.commit()
-    announcements_get_all.clear()
-    announcements_get_active.clear()
+
+
 
 def announcements_delete(announcement_id):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("DELETE FROM announcements WHERE announcement_id = %s", (announcement_id,))
     conn.commit()
-    announcements_get_all.clear()
-    announcements_get_active.clear()
+
+

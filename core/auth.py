@@ -2,7 +2,7 @@ import bcrypt
 import secrets
 from datetime import datetime, timezone
 import pandas as pd
-import streamlit as st
+
 
 from core.db import get_connection
 
@@ -29,7 +29,7 @@ def user_get_by_email(email):
         WHERE u.email = %s
     """
     df = pd.read_sql(query, conn, params=(email.strip().lower(),))
-    return df.iloc[0] if not df.empty else None
+    return df.iloc[0].to_dict() if not df.empty else None
 
 
 def create_user_session(user_id):
@@ -54,9 +54,11 @@ def get_active_session(token):
     df = pd.read_sql(
         """
         SELECT us.token, us.user_id, us.last_activity_at,
-               u.email, u.role, u.department, u.status, u.is_active
+               u.id, u.email, u.role, u.department, u.status, u.is_active,
+               r.name as role_name
         FROM user_sessions us
         JOIN app_users u ON u.id = us.user_id
+        LEFT JOIN roles r ON u.role_id = r.role_id
         WHERE us.token = %s
         """,
         conn, params=(token,),
@@ -78,7 +80,12 @@ def get_active_session(token):
     if elapsed > SESSION_TIMEOUT_SECONDS or row["status"] != "active" or not bool(row["is_active"]):
         delete_user_session(token)
         return None
-    return row
+    session = row.to_dict()
+    # Normalize: always expose a lowercase 'role' derived from the roles table.
+    # This is the single canonical field all backend code must use for RBAC checks.
+    role_name = session.get("role_name") or session.get("role") or ""
+    session["role"] = role_name.lower()
+    return session
 
 
 def touch_user_session(token):

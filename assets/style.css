@@ -29,17 +29,52 @@ needs styling, extend the rules below instead so every page stays consistent.
 --------------------------------------------------------------------------- */
 
 :root {
-    --ura-navy: #243F8D;
-    --ura-navy-dark: #1A2E66;
-    --ura-gold: #FFF200;
+    --ura-navy: #1755A6;
+    --ura-navy-dark: #0f3b75;
+    --ura-gold: #FFF201;
     --ura-gold-soft: #FFFBCC;
     --ura-terracotta: #B54834;
-    --ura-canvas: #F6F3EC;
-    --ura-surface: #FFFFFF;
-    --ura-ink: #1C2430;
-    --ura-muted: #6B7280;
-    --ura-border: #E4DFD3;
+    --ura-canvas: #30302F;
+    --ura-surface: #1e1e1e;
+    --ura-ink: #ffffff;
+    --ura-muted: #a0a0a0;
+    --ura-border: #444444;
     --ura-green: #1F7A4C;
+}
+
+/* Base App Upgrade */
+.stApp {
+    background-color: var(--ura-canvas) !important;
+}
+
+/* Beautiful Cards */
+div[data-testid="stVerticalBlock"] > div > div > div[data-testid="stVerticalBlockBorderWrapper"] {
+    background: var(--ura-surface);
+    border: 1px solid var(--ura-border);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+}
+
+/* Modern Buttons */
+button[kind="primary"] {
+    background: var(--ura-navy) !important;
+    color: white !important;
+    border-radius: 8px !important;
+    font-weight: bold !important;
+    border: none !important;
+}
+
+button[kind="primary"]:hover {
+    background: var(--ura-gold) !important;
+    color: var(--ura-canvas) !important;
+}
+
+button[kind="secondary"] {
+    background: var(--ura-surface) !important;
+    color: white !important;
+    border: 1px solid var(--ura-border) !important;
+    border-radius: 8px !important;
 }
 
 /* Hide default Streamlit clutter */
