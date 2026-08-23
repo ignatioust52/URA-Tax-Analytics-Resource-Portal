@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../lib/api';
 
 export function ResourceFormModal({ 
   onClose, 
@@ -16,10 +17,17 @@ export function ResourceFormModal({
     description: initialData?.description || '',
     category: initialData?.category || '',
     url: initialData?.url || '',
-    admin_only: initialData?.admin_only || false,
-    dept_id_list: []
+    visibility: initialData?.visibility || 'EVERYONE',
+    dept_id_list: initialData?.departments ? initialData.departments.map((d: any) => typeof d === 'object' ? d.id : d) : []
   });
   const [error, setError] = useState('');
+  const [departments, setDepartments] = useState<any[]>([]);
+
+  useEffect(() => {
+    apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/departments`)
+      .then(d => setDepartments(d))
+      .catch(e => console.error(e));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +57,15 @@ export function ResourceFormModal({
     }
   };
 
+  const toggleDept = (id: number) => {
+    setFormData(prev => ({
+      ...prev,
+      dept_id_list: prev.dept_id_list.includes(id) 
+        ? prev.dept_id_list.filter((x: number) => x !== id)
+        : [...prev.dept_id_list, id]
+    }));
+  };
+
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
       <div className="glass-panel" style={{ width: '100%', maxWidth: '600px', padding: '32px', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -76,10 +93,38 @@ export function ResourceFormModal({
             <label style={{ display: 'block', marginBottom: '8px' }}>URL</label>
             <input required type="url" value={formData.url} onChange={e => setFormData({...formData, url: e.target.value})} style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.3)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <input type="checkbox" checked={formData.admin_only} onChange={e => setFormData({...formData, admin_only: e.target.checked})} />
-            <label>Admin Only</label>
+          
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px' }}>Visibility</label>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <input type="radio" name="visibility" value="EVERYONE" checked={formData.visibility === 'EVERYONE'} onChange={e => setFormData({...formData, visibility: e.target.value})} />
+                Everyone
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <input type="radio" name="visibility" value="ADMIN_ONLY" checked={formData.visibility === 'ADMIN_ONLY'} onChange={e => setFormData({...formData, visibility: e.target.value})} />
+                Admin Only
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <input type="radio" name="visibility" value="SELECTED_DEPARTMENTS" checked={formData.visibility === 'SELECTED_DEPARTMENTS'} onChange={e => setFormData({...formData, visibility: e.target.value})} />
+                Selected Departments
+              </label>
+            </div>
           </div>
+
+          {formData.visibility === 'SELECTED_DEPARTMENTS' && (
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px' }}>Select Departments</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '150px', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.1)', padding: '8px' }}>
+                {departments.map(d => (
+                  <label key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input type="checkbox" checked={formData.dept_id_list.includes(d.id)} onChange={() => toggleDept(d.id)} />
+                    {d.name}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
           
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
             <button type="button" onClick={onClose} className="btn-secondary">Cancel</button>

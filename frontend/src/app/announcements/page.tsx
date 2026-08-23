@@ -13,7 +13,8 @@ type Announcement = {
   announcement_id: number;
   title: string;
   body: string;
-  audience_department_id: number | null;
+  visibility: string;
+  departments?: any[];
   published_by: number;
   published_at: string;
   expires_at: string | null;
@@ -26,6 +27,7 @@ export default function AnnouncementsPage() {
   
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [allDepartments, setAllDepartments] = useState<any[]>([]);
   
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -34,15 +36,19 @@ export default function AnnouncementsPage() {
   // Form state
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [deptId, setDeptId] = useState('');
+  const [visibility, setVisibility] = useState('EVERYONE');
+  const [deptIdList, setDeptIdList] = useState<number[]>([]);
   const [expiresAt, setExpiresAt] = useState('');
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
-    if (!authLoading && (!user || user.role !== 'admin')) {
+    if (!authLoading && (!user || (user.role !== 'admin' && user.role !== 'Super Administrator' && user.role !== 'System Administrator'))) {
       router.push('/');
-    } else if (user && user.role === 'admin') {
+    } else if (user && (user.role === 'admin' || user.role === 'Super Administrator' || user.role === 'System Administrator')) {
       fetchAnnouncements();
+      apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/departments`)
+        .then(d => setAllDepartments(d))
+        .catch(e => console.error(e));
     }
   }, [user, authLoading, router]);
 
@@ -62,18 +68,24 @@ export default function AnnouncementsPage() {
       setEditingAnn(ann);
       setTitle(ann.title);
       setBody(ann.body);
-      setDeptId(ann.audience_department_id ? String(ann.audience_department_id) : '');
+      setVisibility(ann.visibility || 'EVERYONE');
+      setDeptIdList(ann.departments ? ann.departments.map(d => typeof d === 'object' ? d.id : d) : []);
       setExpiresAt(ann.expires_at ? new Date(ann.expires_at).toISOString().slice(0,16) : '');
       setIsActive(ann.is_active);
     } else {
       setEditingAnn(null);
       setTitle('');
       setBody('');
-      setDeptId('');
+      setVisibility('EVERYONE');
+      setDeptIdList([]);
       setExpiresAt('');
       setIsActive(true);
     }
     setShowModal(true);
+  };
+
+  const toggleDept = (id: number) => {
+    setDeptIdList(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,7 +94,8 @@ export default function AnnouncementsPage() {
     const payload = {
       title,
       body,
-      audience_department_id: deptId ? parseInt(deptId) : null,
+      visibility,
+      dept_id_list: deptIdList,
       expires_at: expiresAt ? new Date(expiresAt).toISOString() : null,
       is_active: isActive
     };
@@ -118,7 +131,7 @@ export default function AnnouncementsPage() {
   };
 
   if (authLoading || loading) return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading...</div>;
-  if (!user || user.role !== 'admin') return null;
+  if (!user || (user.role !== 'admin' && user.role !== 'Super Administrator' && user.role !== 'System Administrator')) return null;
 
   return (
     <AdminGuard>
@@ -139,7 +152,7 @@ export default function AnnouncementsPage() {
             <tr style={{ background: 'var(--surface-hover)', borderBottom: '1px solid var(--border-light)' }}>
               <th style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Status</th>
               <th style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Title</th>
-              <th style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Audience</th>
+              <th style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Visibility</th>
               <th style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Published</th>
               <th style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Expires</th>
               <th style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
@@ -154,7 +167,7 @@ export default function AnnouncementsPage() {
                   <Badge variant={ann.is_active ? 'success' : 'neutral'}>{ann.is_active ? 'Active' : 'Inactive'}</Badge>
                 </td>
                 <td style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 500 }}>{ann.title}</td>
-                <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)' }}>{ann.audience_department_id ? `Dept ID: ${ann.audience_department_id}` : 'Global'}</td>
+                <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)' }}>{ann.visibility}</td>
                 <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{new Date(ann.published_at).toLocaleDateString()}</td>
                 <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{ann.expires_at ? new Date(ann.expires_at).toLocaleDateString() : 'Never'}</td>
                 <td style={{ padding: 'var(--space-3) var(--space-4)', textAlign: 'right' }}>
@@ -202,15 +215,40 @@ export default function AnnouncementsPage() {
                   }}
                 />
               </div>
+
+              <div style={{ marginBottom: 'var(--space-3)' }}>
+                <label style={{ display: 'block', marginBottom: '8px' }}>Visibility</label>
+                <div style={{ display: 'flex', gap: '16px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <input type="radio" name="visibility" value="EVERYONE" checked={visibility === 'EVERYONE'} onChange={e => setVisibility(e.target.value)} />
+                    Everyone
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <input type="radio" name="visibility" value="ADMIN_ONLY" checked={visibility === 'ADMIN_ONLY'} onChange={e => setVisibility(e.target.value)} />
+                    Admin Only
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <input type="radio" name="visibility" value="SELECTED_DEPARTMENTS" checked={visibility === 'SELECTED_DEPARTMENTS'} onChange={e => setVisibility(e.target.value)} />
+                    Selected Departments
+                  </label>
+                </div>
+              </div>
+
+              {visibility === 'SELECTED_DEPARTMENTS' && (
+                <div style={{ marginBottom: 'var(--space-3)' }}>
+                  <label style={{ display: 'block', marginBottom: '8px' }}>Select Departments</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '150px', overflowY: 'auto', border: '1px solid var(--border-medium)', padding: '8px' }}>
+                    {allDepartments.map(d => (
+                      <label key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input type="checkbox" checked={deptIdList.includes(d.id)} onChange={() => toggleDept(d.id)} />
+                        {d.name}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-                <Input 
-                  label="Target Department ID (Optional)"
-                  type="number" 
-                  value={deptId} 
-                  onChange={e => setDeptId(e.target.value)} 
-                  placeholder="Leave empty for Global"
-                />
                 <Input 
                   label="Expires At (Optional)"
                   type="datetime-local" 

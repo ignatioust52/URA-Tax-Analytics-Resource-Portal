@@ -38,13 +38,13 @@ def user_get_by_email(email):
             return dict(zip(cols, row))
 
 
-def create_user_session(user_id):
+def create_user_session(user_id, active_department_id=None):
     token = secrets.token_urlsafe(32)
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO user_sessions (token, user_id, last_activity_at) VALUES (%s, %s, NOW())",
-                (token, int(user_id)),
+                "INSERT INTO user_sessions (token, user_id, active_department_id, last_activity_at) VALUES (%s, %s, %s, NOW())",
+                (token, int(user_id), int(active_department_id) if active_department_id else None),
             )
     return token
 
@@ -59,9 +59,9 @@ def get_active_session(token):
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT us.token, us.user_id, us.last_activity_at,
+                SELECT us.token, us.user_id, us.active_department_id, us.last_activity_at,
                        u.id, u.email, u.role, u.department, u.status, u.is_active,
-                       r.name as role_name
+                       r.name as role_name, r.role_id
                 FROM user_sessions us
                 JOIN app_users u ON u.id = us.user_id
                 LEFT JOIN roles r ON u.role_id = r.role_id
@@ -106,5 +106,21 @@ def delete_user_session(token):
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("DELETE FROM user_sessions WHERE token = %s", (token,))
+
+def has_permission(user_id, permission_key):
+    """Check if the user has a specific permission via their role."""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT 1
+                FROM app_users u
+                JOIN role_permissions rp ON u.role_id = rp.role_id
+                JOIN permissions p ON p.id = rp.permission_id
+                WHERE u.id = %s AND p.permission_key = %s
+                """,
+                (int(user_id), permission_key)
+            )
+            return bool(cur.fetchone())
 
 # Note: check_login() has been completely removed as it was legacy Streamlit UI code.

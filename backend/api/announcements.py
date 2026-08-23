@@ -52,14 +52,15 @@ def get_all_announcements(request: Request):
 class AnnouncementCreate(BaseModel):
     title: str
     body: str
-    audience_department_id: Optional[int] = None
+    visibility: str = "EVERYONE"
+    dept_id_list: list[int] = []
     expires_at: Optional[str] = None
 
 @router.post("/")
 def create_announcement(ann: AnnouncementCreate, request: Request):
     session = require_admin(request)
     try:
-        announcements_create(ann.title, ann.body, ann.audience_department_id, session["id"], ann.expires_at)
+        announcements_create(ann.title, ann.body, ann.visibility, ann.dept_id_list, session["id"], ann.expires_at)
         return {"success": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -67,7 +68,8 @@ def create_announcement(ann: AnnouncementCreate, request: Request):
 class AnnouncementUpdate(BaseModel):
     title: str
     body: str
-    audience_department_id: Optional[int] = None
+    visibility: str = "EVERYONE"
+    dept_id_list: list[int] = []
     expires_at: Optional[str] = None
     is_active: bool
 
@@ -75,7 +77,7 @@ class AnnouncementUpdate(BaseModel):
 def update_announcement(announcement_id: int, ann: AnnouncementUpdate, request: Request):
     require_admin(request)
     try:
-        announcements_update(announcement_id, ann.title, ann.body, ann.audience_department_id, ann.expires_at, ann.is_active)
+        announcements_update(announcement_id, ann.title, ann.body, ann.visibility, ann.dept_id_list, ann.expires_at, ann.is_active)
         return {"success": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

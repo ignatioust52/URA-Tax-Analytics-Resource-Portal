@@ -59,6 +59,26 @@ def user_department_access_get(user_id):
     except Exception:
         return []
 
+def user_department_access_get_details(user_id):
+    """Returns a list of dicts {'id', 'name'} granted to the given user."""
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT d.id, d.name
+                    FROM user_department_access uda
+                    JOIN departments d ON d.id = uda.department_id
+                    WHERE uda.user_id = %s
+                    ORDER BY d.name
+                    """,
+                    (int(user_id),)
+                )
+                cols = [desc[0] for desc in cur.description]
+                return [dict(zip(cols, row)) for row in cur.fetchall()]
+    except Exception:
+        return []
+
 def user_department_access_set(user_id, dept_id_list):
     """Replace all department-access rows for user_id with the given list of dept IDs."""
     with get_db_connection() as conn:

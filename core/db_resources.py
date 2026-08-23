@@ -17,7 +17,7 @@ def resources_get_all():
             description,
             category,
             url,
-            COALESCE(admin_only, false) AS admin_only,
+            COALESCE(visibility, 'EVERYONE') AS visibility,
             COALESCE(NULLIF(department, ''), 'All') AS department,
             added_by,
             last_edited_by,
@@ -35,17 +35,17 @@ def resources_get_all():
     except Exception:
         return _fetch_all_dicts("SELECT * FROM public_resources ORDER BY id")
 
-def resources_create(page_name, business_name, description, category, url, admin_only, dept_id_list, added_by):
+def resources_create(page_name, business_name, description, category, url, visibility, dept_id_list, added_by):
     department = "All" if not dept_id_list else ""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO public_resources (page_name, business_name, description, category, url, admin_only, department, added_by, approval_status)
+                INSERT INTO public_resources (page_name, business_name, description, category, url, visibility, department, added_by, approval_status)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'PendingApproval')
                 RETURNING id
                 """,
-                (page_name, business_name, description, category, url, admin_only, department, added_by),
+                (page_name, business_name, description, category, url, visibility, department, added_by),
             )
             new_id = cur.fetchone()[0]
     
@@ -53,7 +53,7 @@ def resources_create(page_name, business_name, description, category, url, admin
     resources_log_audit(new_id, "create", added_by, f"Created '{business_name}'")
     return new_id
 
-def resources_update(resource_id, page_name, business_name, description, category, url, admin_only, dept_id_list, last_edited_by):
+def resources_update(resource_id, page_name, business_name, description, category, url, visibility, dept_id_list, last_edited_by):
     department = "All" if not dept_id_list else ""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
@@ -61,10 +61,10 @@ def resources_update(resource_id, page_name, business_name, description, categor
                 """
                 UPDATE public_resources
                 SET page_name = %s, business_name = %s, description = %s, category = %s,
-                    url = %s, admin_only = %s, department = %s, last_edited_by = %s
+                    url = %s, visibility = %s, department = %s, last_edited_by = %s
                 WHERE id = %s
                 """,
-                (page_name, business_name, description, category, url, admin_only, department, last_edited_by, int(resource_id)),
+                (page_name, business_name, description, category, url, visibility, department, last_edited_by, int(resource_id)),
             )
     
     resource_department_access_set(int(resource_id), dept_id_list)

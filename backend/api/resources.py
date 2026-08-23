@@ -33,29 +33,35 @@ def clean_records(records):
 def filter_resources_by_rbac(records, session):
     if not records:
         return []
-    
-    # Use canonical normalized 'role' key (always lowercase)
-    is_admin = session.get("role", "").lower() == "admin"
-    
-    if is_admin:
-        # Admins can see everything (we assume main view shows all Approved and maybe PendingApproval)
-        # We'll filter to just Approved for the public view, though admins can manage them in Governance
-        return [r for r in records if r.get("approval_status") == "Approved"]
-
-    # Normal user filtering
-    from core.db_departments import user_department_access_get, resources_get_department_map
+        
+    from core.auth import has_permission
+    from core.db_departments import resources_get_department_map
     from core.db_users import users_get_special_permissions
     from datetime import datetime, timezone
     
-    # Filter to only Approved and not admin_only
-    records = [r for r in records if r.get("approval_status") == "Approved" and not r.get("admin_only")]
-        
+    can_view_all = has_permission(session["id"], "view_all_data")
+    
+    if can_view_all:
+        # User has global view permission, return all approved
+        return [r for r in records if r.get("approval_status") == "Approved"]
+
+    # Filter to only Approved
+    records = [r for r in records if r.get("approval_status") == "Approved"]
     if not records:
         return []
         
-    user_dept_access = set(user_department_access_get(session["id"]))
+    active_dept_id = session.get("active_department_id")
     resource_depts = resources_get_department_map() # dict: {resource_id: [dept_name, ...]}
     
+    # We need a way to map dept names to IDs or vice versa, but resource_depts returns names.
+    # Let's fetch active dept name
+    active_dept_name = None
+    if active_dept_id:
+        from core.db_departments import _fetch_one_dict
+        dept_row = _fetch_one_dict("SELECT name FROM departments WHERE id = %s", (active_dept_id,))
+        if dept_row:
+            active_dept_name = dept_row["name"]
+
     # ABAC: fetch user's special permissions
     perms = users_get_special_permissions(session["id"])
     active_keys = set()
@@ -72,6 +78,12 @@ def filter_resources_by_rbac(records, session):
 
     filtered = []
     for row in records:
+        visibility = str(row.get("visibility", "EVERYONE")).upper()
+        rid = row["id"]
+        
+        if visibility == "ADMIN_ONLY" and not has_permission(session["id"], "manage_system_settings"):
+            continue
+            
         # 1. ABAC Check: Sensitivity Classification
         sensitivity = str(row.get("sensitivity_classification", "Public")).lower()
         if sensitivity in ["confidential", "restricted"]:
@@ -80,12 +92,12 @@ def filter_resources_by_rbac(records, session):
                 continue
                 
         # 2. RBAC Check: Department Map
-        rid = row["id"]
-        required_depts = resource_depts.get(rid, [])
-        if not required_depts:
-            filtered.append(row) # No specific department restrictions, visible to all (if ABAC passed)
-        elif len(user_dept_access.intersection(set(required_depts))) > 0:
-            filtered.append(row)
+        if visibility == "SELECTED_DEPARTMENTS":
+            required_depts = resource_depts.get(rid, [])
+            if not active_dept_name or active_dept_name not in required_depts:
+                continue
+
+        filtered.append(row)
 
     return filtered
 
@@ -144,7 +156,7 @@ class ResourceCreate(BaseModel):
     description: str = ""
     category: str = ""
     url: str
-    admin_only: bool = False
+    visibility: str = "EVERYONE"
     dept_id_list: List[int] = []
 
 @router.post("/")
@@ -160,7 +172,7 @@ def create_resource(res: ResourceCreate, request: Request):
         from core.db_resources import resources_create
         new_id = resources_create(
             res.page_name, res.business_name, res.description,
-            res.category, res.url, res.admin_only, res.dept_id_list, session.get("email")
+            res.category, res.url, res.visibility, res.dept_id_list, session.get("email")
         )
         return {"success": True, "id": new_id}
     except Exception as e:
@@ -173,7 +185,7 @@ def update_resource(resource_id: int, res: ResourceCreate, request: Request):
         from core.db_resources import resources_update
         resources_update(
             resource_id, res.page_name, res.business_name, res.description,
-            res.category, res.url, res.admin_only, res.dept_id_list, session.get("email")
+            res.category, res.url, res.visibility, res.dept_id_list, session.get("email")
         )
         return {"success": True}
     except Exception as e:

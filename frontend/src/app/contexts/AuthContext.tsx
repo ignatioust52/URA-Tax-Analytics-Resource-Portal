@@ -2,10 +2,12 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type User = {
+interface User {
+  id?: number;
   email: string;
   role: string;
-  department: string;
+  department?: string;
+  active_department_id?: number;
 };
 
 type AuthContextType = {

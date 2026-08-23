@@ -21,26 +21,86 @@ def login(login_req: LoginRequest, response: Response):
     if not bcrypt.checkpw(login_req.password.encode('utf-8'), str(user["password_hash"]).encode('utf-8')):
         raise HTTPException(status_code=401, detail="Invalid credentials")
         
-    session_token = create_user_session(user["id"])
+    from core.db_departments import user_department_access_get_details
+    departments = user_department_access_get_details(user["id"])
     
-    # Set HTTP-only cookie
+    if len(departments) == 1:
+        # User has exactly one department, auto-select it
+        active_department_id = departments[0]["id"]
+        session_token = create_user_session(user["id"], active_department_id)
+        
+        response.set_cookie(
+            key="session_token", 
+            value=session_token, 
+            httponly=True, 
+            samesite="none",
+            secure=True,
+            max_age=3600
+        )
+        return {
+            "success": True,
+            "requires_department_selection": False,
+            "user": {
+                "email": user["email"],
+                "role": str(user.get("role_name") or user.get("role") or "").lower(),
+                "active_department_id": active_department_id
+            }
+        }
+    else:
+        # User has 0 or >1 departments, issue a temporary pre-auth token (without active_department_id)
+        session_token = create_user_session(user["id"], None)
+        
+        response.set_cookie(
+            key="session_token", 
+            value=session_token, 
+            httponly=True, 
+            samesite="none",
+            secure=True,
+            max_age=3600
+        )
+        return {
+            "success": True,
+            "requires_department_selection": True,
+            "departments": departments,
+            "user": {
+                "email": user["email"],
+                "role": str(user.get("role_name") or user.get("role") or "").lower()
+            }
+        }
+
+class SelectDepartmentRequest(BaseModel):
+    department_id: int
+
+@router.post("/select-department")
+def select_department(req: SelectDepartmentRequest, request: Request, response: Response):
+    token = request.cookies.get("session_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+        
+    session = get_active_session(token)
+    if not session:
+        raise HTTPException(status_code=401, detail="Invalid session")
+        
+    from core.db_departments import user_department_access_get_details
+    departments = user_department_access_get_details(session["user_id"])
+    
+    # Check if requested department is in approved list
+    if not any(d["id"] == req.department_id for d in departments):
+        raise HTTPException(status_code=403, detail="Not authorized for this department")
+        
+    # Delete old session and issue new one with department
+    delete_user_session(token)
+    new_token = create_user_session(session["user_id"], req.department_id)
+    
     response.set_cookie(
         key="session_token", 
-        value=session_token, 
+        value=new_token, 
         httponly=True, 
         samesite="none",
         secure=True,
         max_age=3600
     )
-    
-    return {
-        "success": True, 
-        "user": {
-            "email": user["email"],
-            "role": str(user.get("role_name") or user.get("role") or "").lower(),
-            "department": user["department"]
-        }
-    }
+    return {"success": True, "active_department_id": req.department_id}
 
 @router.post("/logout")
 def logout(request: Request, response: Response):
@@ -68,7 +128,20 @@ def get_current_user(request: Request):
         "role": session.get("role"),        # always lowercase: 'admin' | 'viewer'
         "role_name": session.get("role_name"),  # original casing from roles table
         "department": session.get("department"),
+        "active_department_id": session.get("active_department_id"),
     }
+
+@router.get("/departments")
+def get_user_departments(request: Request):
+    token = request.cookies.get("session_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    session = get_active_session(token)
+    if not session:
+        raise HTTPException(status_code=401, detail="Invalid session")
+    from core.db_departments import user_department_access_get_details
+    deps = user_department_access_get_details(session["id"])
+    return deps
 
 class RegisterRequest(BaseModel):
     email: str

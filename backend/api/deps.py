@@ -21,14 +21,29 @@ def require_session(request: Request) -> dict:
     return session
 
 
+def require_permission(permission_key: str):
+    """
+    Dependency factory to require a specific permission.
+    Usage: Depends(require_permission("view_dashboard"))
+    """
+    def _require_permission(request: Request) -> dict:
+        session = require_session(request)
+        from core.auth import has_permission
+        if not has_permission(session["id"], permission_key):
+            raise HTTPException(status_code=403, detail=f"Missing permission: {permission_key}")
+        return session
+    return _require_permission
+
+
 def require_admin(request: Request) -> dict:
     """
-    Require an authenticated Admin session.
-    Returns the session dict. Raises 401/403 as appropriate.
+    Legacy wrapper - transitions to requiring 'manage_system_settings' or 'approve_users'
+    depending on context, but for now we'll map it to 'manage_system_settings'
+    to represent core admin access.
     """
     session = require_session(request)
-    # role is normalized to lowercase by get_active_session
-    if session.get("role") != "admin":
+    from core.auth import has_permission
+    if not has_permission(session["id"], "manage_system_settings"):
         raise HTTPException(status_code=403, detail="Admin access required")
     return session
 
@@ -41,4 +56,5 @@ def get_session_or_none(request: Request):
     token = request.cookies.get("session_token")
     if not token:
         return None
+    from core.auth import get_active_session
     return get_active_session(token)
