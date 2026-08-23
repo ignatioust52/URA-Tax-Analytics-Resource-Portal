@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
-from backend.api.resources import serialize_df
 from core.db_users import users_get_all, users_toggle_active
 from backend.api.deps import require_admin
 
