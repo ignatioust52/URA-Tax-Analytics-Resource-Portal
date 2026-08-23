@@ -59,6 +59,11 @@
   padding: 0;
 }
 
+html {
+  background-color: #1C2430; /* Dark background to prevent white flashes on overscroll */
+  overscroll-behavior-y: none; /* Prevents the 'bounce' effect that reveals white space on mobile */
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background: linear-gradient(rgba(241, 245, 249, 0.88), rgba(241, 245, 249, 0.92)), url('/ura-bg.jpg') no-repeat center center fixed;
@@ -70,6 +75,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
+  overscroll-behavior-y: none;
 }
 
 /* Layout Utilities */
