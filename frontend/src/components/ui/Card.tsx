@@ -6,9 +6,11 @@ export function Card({ children, className = '', style = {}, noPadding = false }
       className={`card ${className}`} 
       style={{
         background: 'var(--surface)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         border: '1px solid var(--border-light)',
         borderRadius: 'var(--radius-lg)',
-        boxShadow: 'var(--shadow-sm)',
+        boxShadow: 'var(--shadow-lg)',
         padding: noPadding ? '0' : 'var(--space-4)',
         overflow: 'hidden',
         ...style

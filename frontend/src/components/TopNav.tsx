@@ -56,9 +56,9 @@ export function TopNav() {
   if (pathname === '/login') return null;
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: '100%', position: 'sticky', top: 0, zIndex: 100 }}>
       {/* Top Header */}
-      <div className="top-nav-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: '#243F8D', color: 'white' }}>
+      <div className="top-nav-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(36, 63, 141, 0.85)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', color: 'white' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <img src="/logo.png" alt="URA Logo" style={{ height: '40px', width: 'auto' }} />
           <div className="top-nav-brand-text hidden-mobile" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -94,7 +94,7 @@ export function TopNav() {
           <div className="ura-stripe" style={{ height: '4px', background: 'linear-gradient(to right, #B54834 33%, #FFF200 33%, #FFF200 66%, #1C2430 66%)' }}></div>
 
           {/* Desktop Tabs / Auth Strip */}
-          <div className="hidden-mobile" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 1rem', background: '#1A2E66', borderBottom: '1px solid #1C2430' }}>
+          <div className="hidden-mobile" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 1rem', background: 'rgba(26, 46, 102, 0.85)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
             <div style={{ display: 'flex', gap: '0.5rem', padding: '0.5rem 0' }}>
               {navLinks.map((link) => {
                 const isActive = pathname === link.path || (pathname === '/' && link.path === '/resources');

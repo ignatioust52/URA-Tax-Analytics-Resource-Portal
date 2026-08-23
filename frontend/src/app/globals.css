@@ -10,28 +10,28 @@
   --ura-yellow-hover: #E6DA00;
   --ura-yellow-light: #FFFCDB;
 
-  /* Backgrounds & Surfaces (Light Theme) */
+  /* Backgrounds & Surfaces (Glass Theme) */
   --background: #F8FAFC;
-  --surface: #FFFFFF;
-  --surface-hover: #F1F5F9;
+  --surface: rgba(255, 255, 255, 0.75);
+  --surface-hover: rgba(255, 255, 255, 0.9);
   
   /* Borders */
-  --border-light: #E2E8F0;
-  --border-medium: #CBD5E1;
+  --border-light: rgba(255, 255, 255, 0.6);
+  --border-medium: rgba(203, 213, 225, 0.6);
   
   /* Typography */
   --text-primary: #0F172A;
-  --text-secondary: #475569;
-  --text-tertiary: #94A3B8;
+  --text-secondary: #334155;
+  --text-tertiary: #64748B;
   --text-inverse: #FFFFFF;
   
   /* Status Colors */
   --success: #10B981;
-  --success-bg: #ECFDF5;
+  --success-bg: rgba(16, 185, 129, 0.15);
   --error: #EF4444;
-  --error-bg: #FEF2F2;
+  --error-bg: rgba(239, 68, 68, 0.15);
   --warning: #F59E0B;
-  --warning-bg: #FFFBEB;
+  --warning-bg: rgba(245, 158, 11, 0.15);
   
   /* Spacing */
   --space-1: 4px;
@@ -49,8 +49,8 @@
   
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 25px -3px rgba(36, 63, 141, 0.1), 0 4px 6px -2px rgba(36, 63, 141, 0.05);
 }
 
 * {
@@ -61,7 +61,8 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--background);
+  background: linear-gradient(rgba(241, 245, 249, 0.88), rgba(241, 245, 249, 0.92)), url('/ura-bg.jpg') no-repeat center center fixed;
+  background-size: cover;
   color: var(--text-primary);
   min-height: 100vh;
   display: flex;
