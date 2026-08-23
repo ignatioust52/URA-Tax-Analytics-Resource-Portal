@@ -205,3 +205,13 @@ def toggle_favorite(resource_id: int, request: Request):
         return {"success": True, "is_favorite": is_fav}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/{resource_id}/view")
+def record_view(resource_id: int, request: Request):
+    require_session(request)
+    try:
+        from core.db_resources import resources_record_view
+        resources_record_view(resource_id)
+        return {"success": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

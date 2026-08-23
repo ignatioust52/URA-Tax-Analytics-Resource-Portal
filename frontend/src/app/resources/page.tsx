@@ -116,8 +116,13 @@ export default function ResourcesPage() {
     });
   };
 
-  const handleResourceClick = (res: Resource) => {
+  const handleResourceClick = async (res: Resource) => {
     setSelectedResource(res);
+    try {
+      await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources/${res.id}/view`, { method: 'POST' });
+    } catch (err) {
+      console.error('Failed to log view:', err);
+    }
   };
 
   const [showModal, setShowModal] = useState(false);
