@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { AdminGuard } from '../../components/AdminGuard';
+import { apiFetch } from '../../lib/api';
 
 export default function UsersPage() {
   const [activeTab, setActiveTab] = useState('active');
@@ -11,13 +12,12 @@ export default function UsersPage() {
 
   const fetchUsers = () => {
     setLoading(true);
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users`, { credentials: 'include' })
-      .then(res => res.ok ? res.json() : [])
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    apiFetch(`${baseUrl}/api/users`)
       .then(d => setData(d))
       .catch(err => setError(err.message));
       
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/pending`, { credentials: 'include' })
-      .then(res => res.ok ? res.json() : [])
+    apiFetch(`${baseUrl}/api/users/pending`)
       .then(d => setPendingUsers(d))
       .finally(() => setLoading(false));
   };
@@ -28,13 +28,11 @@ export default function UsersPage() {
 
   const handleStatusUpdate = async (id: number, isActive: boolean, status: string) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/status`, {
+      await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/status`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ user_id: id, is_active: isActive, status }),
       });
-      if (!res.ok) throw new Error('Failed to update status');
       fetchUsers();
     } catch (err: any) {
       alert(err.message);
@@ -42,17 +40,13 @@ export default function UsersPage() {
   };
 
   const handleApprove = async (id: number) => {
-    // Basic approval with 'viewer' role and no specific departments for now
-    // A fully functional dashboard would have a form here to select roles and departments
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/approve`, {
+      await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ user_id: id, role: 'viewer', department_ids: [] })
       });
-      if (res.ok) fetchUsers();
-      else alert("Failed to approve");
+      fetchUsers();
     } catch (err: any) {
       alert(err.message);
     }
@@ -60,14 +54,12 @@ export default function UsersPage() {
 
   const handleReject = async (id: number) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/reject`, {
+      await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ user_id: id })
       });
-      if (res.ok) fetchUsers();
-      else alert("Failed to reject");
+      fetchUsers();
     } catch (err: any) {
       alert(err.message);
     }
@@ -79,21 +71,15 @@ export default function UsersPage() {
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/create`, {
+      await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ ...createForm, department_ids: [] })
       });
-      if (res.ok) {
-        alert("User created successfully!");
-        setCreateForm({ email: '', password: '', role: 'viewer' });
-        fetchUsers();
-        setActiveTab('active');
-      } else {
-        const d = await res.json();
-        alert(d.detail || "Failed to create user");
-      }
+      alert("User created successfully!");
+      setCreateForm({ email: '', password: '', role: 'viewer' });
+      fetchUsers();
+      setActiveTab('active');
     } catch(err: any) {
       alert(err.message);
     }

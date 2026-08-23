@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
 import { AdminGuard } from '../../components/AdminGuard';
+import { apiFetch } from '../../lib/api';
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<{role: 'user' | 'assistant', content: string}[]>([]);
@@ -27,7 +28,7 @@ export default function ChatPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/chat`, {
+      const data = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -36,9 +37,6 @@ export default function ChatPage() {
         }),
       });
 
-      if (!res.ok) throw new Error('Unauthorized or Server Error');
-      const data = await res.json();
-      
       setMessages([...newMessages, { role: 'assistant', content: data.reply }]);
     } catch (err) {
       setMessages([...newMessages, { role: 'assistant', content: 'Error: Could not reach the AI Assistant. Please ensure you are logged in.' }]);

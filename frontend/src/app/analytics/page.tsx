@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { AdminGuard } from '../../components/AdminGuard';
+import { apiFetch } from '../../lib/api';
 import {
   LineChart,
   Line,
@@ -18,16 +19,7 @@ export default function AnalyticsPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/analytics`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Unauthorized');
-        return res.json();
-      })
+    apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/analytics`)
       .then(setData)
       .catch(err => setError(err.message));
   }, []);

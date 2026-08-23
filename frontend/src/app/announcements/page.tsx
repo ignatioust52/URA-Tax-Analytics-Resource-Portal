@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { AdminGuard } from '../../components/AdminGuard';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import { apiFetch } from '../../lib/api';
 
 type Announcement = {
   announcement_id: number;
@@ -44,11 +45,8 @@ export default function AnnouncementsPage() {
   const fetchAnnouncements = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements`, { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
-        setAnnouncements(data || []);
-      }
+      const data = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements`);
+      setAnnouncements(data || []);
     } catch (err) {
       console.error(err);
     }
@@ -90,17 +88,14 @@ export default function AnnouncementsPage() {
         ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements/${editingAnn.announcement_id}`
         : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements`;
         
-      const res = await fetch(url, {
+      await apiFetch(url, {
         method: editingAnn ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(payload)
       });
       
-      if (res.ok) {
-        setShowModal(false);
-        fetchAnnouncements();
-      }
+      setShowModal(false);
+      fetchAnnouncements();
     } catch (err) {
       console.error(err);
     }
@@ -109,11 +104,10 @@ export default function AnnouncementsPage() {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this announcement?")) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
+      await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements/${id}`, {
+        method: 'DELETE'
       });
-      if (res.ok) fetchAnnouncements();
+      fetchAnnouncements();
     } catch (err) {
       console.error(err);
     }

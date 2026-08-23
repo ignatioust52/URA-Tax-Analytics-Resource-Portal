@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { AdminGuard } from '../../components/AdminGuard';
+import { apiFetch } from '../../lib/api';
 
 export default function GovernancePage() {
   const [data, setData] = useState<any[]>([]);
@@ -9,16 +10,7 @@ export default function GovernancePage() {
 
   const fetchPending = () => {
     setLoading(true);
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/governance/pending`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Unauthorized');
-        return res.json();
-      })
+    apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/governance/pending`)
       .then(d => {
         setData(d);
         setLoading(false);
@@ -35,15 +27,13 @@ export default function GovernancePage() {
 
   const handleApproval = async (id: number, status: 'Approved' | 'Rejected') => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/governance/approve`, {
+      await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/governance/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify({ resource_id: id, status }),
       });
-      if (!res.ok) throw new Error('Failed to update status');
       fetchPending(); // Refresh list
     } catch (err) {
       alert('Error updating status');
