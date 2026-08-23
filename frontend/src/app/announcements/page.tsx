@@ -46,7 +46,7 @@ export default function AnnouncementsPage() {
       router.push('/');
     } else if (user && (user.role === 'admin' || user.role === 'Super Administrator' || user.role === 'System Administrator')) {
       fetchAnnouncements();
-      apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/departments`)
+      apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/all-departments`)
         .then(d => setAllDepartments(d))
         .catch(e => console.error(e));
     }

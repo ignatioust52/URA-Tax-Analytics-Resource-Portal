@@ -75,8 +75,8 @@ export default function UsersPage() {
   // We need a way to get all departments with IDs. 
   useEffect(() => {
     fetchUsers();
-    // Fetch all departments from backend (we'll implement this endpoint if not present)
-    apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/departments`)
+    // Fetch all departments from backend
+    apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/all-departments`)
       .then(d => setDepartments(d))
       .catch(e => console.error(e));
   }, []);

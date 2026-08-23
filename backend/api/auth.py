@@ -143,6 +143,14 @@ def get_user_departments(request: Request):
     deps = user_department_access_get_details(session["id"])
     return deps
 
+@router.get("/all-departments")
+def get_all_system_departments(request: Request):
+    token = request.cookies.get("session_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    from core.db_departments import departments_get_all
+    return departments_get_all()
+
 class RegisterRequest(BaseModel):
     email: str
     password: str

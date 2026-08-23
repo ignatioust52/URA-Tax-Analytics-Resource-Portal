@@ -27,7 +27,7 @@ export function ResourceFormModal({
   const [departments, setDepartments] = useState<any[]>([]);
 
   useEffect(() => {
-    apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/departments`)
+    apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/all-departments`)
       .then(d => setDepartments(d))
       .catch(e => console.error(e));
   }, []);
