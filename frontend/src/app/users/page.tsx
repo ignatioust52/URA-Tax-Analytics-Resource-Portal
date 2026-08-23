@@ -182,7 +182,7 @@ export default function UsersPage() {
         </Button>
       </div>
 
-      <div style={{ display: 'flex', gap: 'var(--space-4)', borderBottom: '1px solid var(--border-light)', marginBottom: 'var(--space-4)' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-4)', borderBottom: '1px solid var(--border-light)', marginBottom: 'var(--space-4)', overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '4px' }}>
         {['active', 'pending', 'create'].map(tab => (
           <button 
             key={tab}
@@ -208,8 +208,9 @@ export default function UsersPage() {
       {loading ? (
         <Card style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Loading Users...</Card>
       ) : activeTab === 'active' ? (
-        <Card noPadding style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+        <Card noPadding>
+          <div className="table-responsive-wrapper">
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
             <thead>
               <tr style={{ background: 'var(--surface-hover)', borderBottom: '1px solid var(--border-light)' }}>
                 <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem', textTransform: 'uppercase' }}>Email</th>
@@ -251,6 +252,7 @@ export default function UsersPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </Card>
       ) : activeTab === 'pending' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
@@ -275,7 +277,7 @@ export default function UsersPage() {
           ))}
           
           {approveModalOpen && selectedPendingUser && (
-            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '16px' }}>
               <Card style={{ width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
                 <h3 style={{ marginBottom: 'var(--space-4)' }}>Approve User: {selectedPendingUser.email}</h3>
                 <div style={{ marginBottom: 'var(--space-3)' }}>

@@ -221,7 +221,7 @@ export default function ResourcesPage() {
       )}
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 'var(--space-4)', borderBottom: '1px solid var(--border-light)', marginBottom: 'var(--space-4)' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-4)', borderBottom: '1px solid var(--border-light)', marginBottom: 'var(--space-4)', overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '4px' }}>
         {['all', 'favorites', 'recent', 'news', 'ai'].map(tab => (
           <button 
             key={tab}
@@ -263,7 +263,7 @@ export default function ResourcesPage() {
           ))}
         </div>
       ) : activeTab === 'ai' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'var(--space-5)' }}>
+        <div className="grid-dashboard">
           <Card style={{ display: 'flex', flexDirection: 'column', height: '600px' }}>
             <h3 style={{ marginBottom: 'var(--space-2)' }}>URA AI Assistant</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: 'var(--space-4)' }}>
@@ -299,7 +299,7 @@ export default function ResourcesPage() {
           <div>
             <h3 style={{ marginBottom: 'var(--space-4)' }}>AI Recommended Results</h3>
             {aiFilters && getFilteredAiResources().length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 'var(--space-4)' }}>
+              <div className="grid-cards">
                 {getFilteredAiResources().map((resource) => (
                   <Card key={resource.id} style={{ display: 'flex', flexDirection: 'column' }}>
                     <div className="flex-between" style={{ marginBottom: 'var(--space-2)' }}>
@@ -332,7 +332,7 @@ export default function ResourcesPage() {
           <p>Try adjusting your search or filters.</p>
         </Card>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 'var(--space-4)' }}>
+        <div className="grid-cards">
           {getDisplayedResources().map((resource) => (
             <Card key={resource.id} style={{ display: 'flex', flexDirection: 'column' }}>
               <div className="flex-between" style={{ marginBottom: 'var(--space-2)' }}>

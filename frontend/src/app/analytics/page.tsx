@@ -64,7 +64,7 @@ export default function AnalyticsPage() {
           </Button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-5)' }}>
+        <div className="grid-kpi">
           <Card style={{ textAlign: 'center', padding: 'var(--space-5)' }}>
             <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Recorded Views</div>
             <div style={{ fontSize: '3rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: 'var(--space-2)' }}>{data.kpis.total_views || 0}</div>
@@ -81,7 +81,7 @@ export default function AnalyticsPage() {
           </Card>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: 'var(--space-4)' }}>
+        <div className="grid-dashboard">
           <Card>
             <CardHeader title="Daily Views Trend" />
             <div style={{ height: '320px', width: '100%', marginTop: 'var(--space-4)' }}>

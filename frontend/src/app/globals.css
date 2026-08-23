@@ -87,7 +87,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .page-title {
-  font-size: 2.25rem;
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
   font-weight: 700;
   margin-bottom: var(--space-2);
   color: var(--ura-blue);
@@ -96,13 +96,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .page-subtitle {
   color: var(--text-secondary);
-  font-size: 1.125rem;
+  font-size: clamp(1rem, 2vw, 1.125rem);
   margin-bottom: var(--space-5);
   font-weight: 400;
 }
 
 .section-title {
-  font-size: 1.25rem;
+  font-size: clamp(1.125rem, 2vw, 1.25rem);
   font-weight: 600;
   margin-bottom: var(--space-4);
   color: var(--text-primary);
@@ -148,4 +148,115 @@ label {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
+}
+
+/* RESPONSIVE LAYOUT SYSTEM */
+
+/* Responsive Grid Utilities */
+.grid-responsive {
+  display: grid;
+  gap: var(--space-4);
+}
+
+/* General component grid (Resources, Cards) */
+.grid-cards {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr; /* Mobile default */
+}
+@media (min-width: 600px) {
+  .grid-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .grid-cards {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
+/* KPI Cards Grid */
+.grid-kpi {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr; /* Mobile: stacked vertically */
+  margin-bottom: var(--space-5);
+}
+@media (min-width: 600px) {
+  .grid-kpi {
+    grid-template-columns: repeat(2, 1fr); /* Tablet: 2 cols */
+  }
+}
+@media (min-width: 1024px) {
+  .grid-kpi {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Desktop: 4+ cols */
+  }
+}
+
+/* Chart/Complex Dashboard Grid */
+.grid-dashboard {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr; /* Mobile: stacked */
+}
+@media (min-width: 1024px) {
+  .grid-dashboard {
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); /* Desktop: Side by side */
+  }
+}
+
+/* Hide/Show Utilities */
+.hidden-mobile {
+  display: none !important;
+}
+.hidden-desktop {
+  display: block !important;
+}
+
+@media (min-width: 768px) {
+  .hidden-mobile {
+    display: block !important;
+  }
+  .hidden-desktop {
+    display: none !important;
+  }
+}
+
+/* Responsive Table Wrapper */
+.table-responsive-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive-wrapper table {
+  width: 100%;
+  min-width: 600px; /* Force scroll on tiny screens instead of squishing */
+}
+
+/* Touch Targets Ensure Accessibility */
+input, select, button {
+  min-height: 44px; /* Apple/Google recommended minimum touch target */
+}
+
+/* Prevent horizontal overflow strictly at the body/root level */
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Adjust layout containers for mobile */
+@media (max-width: 600px) {
+  .main-container {
+    padding: var(--space-4) var(--space-3); /* Tighter padding on mobile to save space */
+  }
+  .flex-between {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .flex-between.mobile-row {
+    flex-direction: row;
+    align-items: center;
+  }
 }

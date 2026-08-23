@@ -70,7 +70,7 @@ export function ResourceFormModal({
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '16px' }}>
       <Card style={{ width: '100%', maxWidth: '600px', padding: 'var(--space-5)', boxShadow: 'var(--shadow-lg)', maxHeight: '90vh', overflowY: 'auto' }}>
         <h2 style={{ fontSize: '1.5rem', marginBottom: 'var(--space-4)' }}>{isEditing ? 'Edit Resource' : 'Add Resource'}</h2>
         {error && <div style={{ color: 'var(--error)', marginBottom: 'var(--space-3)' }}>{error}</div>}
@@ -125,7 +125,7 @@ export function ResourceFormModal({
           
           <div style={{ marginBottom: 'var(--space-3)' }}>
             <label style={{ display: 'block', marginBottom: '8px' }}>Visibility</label>
-            <div style={{ display: 'flex', gap: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input type="radio" name="visibility" value="EVERYONE" checked={formData.visibility === 'EVERYONE'} onChange={e => setFormData({...formData, visibility: e.target.value})} />
                 Everyone
