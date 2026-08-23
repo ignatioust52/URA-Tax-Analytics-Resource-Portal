@@ -11,12 +11,11 @@ from fastapi import Request
 
 router = APIRouter()
 
-def serialize_df(df):
-    """Convert pandas DataFrame to a list of dicts, handling NaNs."""
-    if df.empty:
+def clean_records(records):
+    """Convert list of dicts to handle NaNs and date formatting (formerly serialize_df)."""
+    if not records:
         return []
-    records = df.to_dict(orient="records")
-    clean_records = []
+    clean = []
     for r in records:
         clean_r = {}
         for k, v in r.items():
@@ -24,12 +23,15 @@ def serialize_df(df):
                 clean_r[k] = None
             else:
                 clean_r[k] = v
-        clean_records.append(clean_r)
-    return clean_records
+            # Date formatting handled by Fastapi/Pydantic mostly, but stringify timestamps if needed
+            if k in ("created_at", "updated_at", "last_viewed_at") and v:
+                clean_r[k] = str(v)
+        clean.append(clean_r)
+    return clean
 
-def filter_resources_by_rbac(df, session):
-    if df.empty:
-        return df
+def filter_resources_by_rbac(records, session):
+    if not records:
+        return []
     
     # Use canonical normalized 'role' key (always lowercase)
     is_admin = session.get("role", "").lower() == "admin"
@@ -37,24 +39,18 @@ def filter_resources_by_rbac(df, session):
     if is_admin:
         # Admins can see everything (we assume main view shows all Approved and maybe PendingApproval)
         # We'll filter to just Approved for the public view, though admins can manage them in Governance
-        # Wait, let's keep it simple: Admins see Approved. Governance queue handles Pending.
-        if "approval_status" in df.columns:
-            return df[df["approval_status"] == "Approved"]
-        return df
+        return [r for r in records if r.get("approval_status") == "Approved"]
 
     # Normal user filtering
     from core.db_departments import user_department_access_get, resources_get_department_map
     from core.db_users import users_get_special_permissions
-    import pandas as pd
+    from datetime import datetime, timezone
     
     # Filter to only Approved and not admin_only
-    if "approval_status" in df.columns:
-        df = df[df["approval_status"] == "Approved"]
-    if "admin_only" in df.columns:
-        df = df[df["admin_only"] == False]
+    records = [r for r in records if r.get("approval_status") == "Approved" and not r.get("admin_only")]
         
-    if df.empty:
-        return df
+    if not records:
+        return []
         
     user_dept_access = set(user_department_access_get(session["id"]))
     resource_depts = resources_get_department_map() # dict: {resource_id: [dept_name, ...]}
@@ -62,74 +58,76 @@ def filter_resources_by_rbac(df, session):
     # ABAC: fetch user's special permissions
     perms = users_get_special_permissions(session["id"])
     active_keys = set()
-    now_ts = pd.Timestamp.now()
+    now_ts = datetime.now(timezone.utc)
     for p in perms:
         if p.get("expires_at"):
-            exp = pd.to_datetime(p["expires_at"])
-            if exp.tz is None:
-                if exp < now_ts.tz_localize(None):
-                    continue
-            else:
-                if exp < now_ts:
-                    continue
+            exp = p["expires_at"]
+            if exp.tzinfo is None:
+                exp = exp.replace(tzinfo=timezone.utc)
+            if exp < now_ts:
+                continue
         if p.get("permission_key"):
             active_keys.add(p["permission_key"].lower())
 
-    def has_access(row):
+    filtered = []
+    for row in records:
         # 1. ABAC Check: Sensitivity Classification
         sensitivity = str(row.get("sensitivity_classification", "Public")).lower()
         if sensitivity in ["confidential", "restricted"]:
             required_key = f"access_{sensitivity}"
             if required_key not in active_keys:
-                return False
+                continue
                 
         # 2. RBAC Check: Department Map
         rid = row["id"]
         required_depts = resource_depts.get(rid, [])
         if not required_depts:
-            return True # No specific department restrictions, visible to all (if ABAC passed)
-        return len(user_dept_access.intersection(set(required_depts))) > 0
+            filtered.append(row) # No specific department restrictions, visible to all (if ABAC passed)
+        elif len(user_dept_access.intersection(set(required_depts))) > 0:
+            filtered.append(row)
 
-    mask = df.apply(has_access, axis=1)
-    return df[mask]
+    return filtered
 
 @router.get("/favorites")
 def get_favorites(request: Request):
     session = require_session(request)
-    fav_ids = resources_get_favorites(session["id"])
+    fav_ids = set(resources_get_favorites(session["id"]))
     if not fav_ids:
         return []
-    df = resources_get_all()
-    if df.empty:
+    records = resources_get_all()
+    if not records:
         return []
-    fav_df = df[df["id"].isin(fav_ids)].reset_index(drop=True)
-    fav_df = filter_resources_by_rbac(fav_df, session)
-    return serialize_df(fav_df)
+    fav_records = [r for r in records if r["id"] in fav_ids]
+    fav_records = filter_resources_by_rbac(fav_records, session)
+    return clean_records(fav_records)
 
 @router.get("/recent")
 def get_recent(request: Request):
     session = require_session(request)
-    recent_records = resources_get_recent(session["id"])
-    if not recent_records:
+    recent_records_ids = resources_get_recent(session["id"])
+    if not recent_records_ids:
         return []
-    recent_ids = list(dict.fromkeys(recent_records))
-    df = resources_get_all()
-    if df.empty:
+    recent_ids = list(dict.fromkeys(recent_records_ids))
+    records = resources_get_all()
+    if not records:
         return []
-    recent_df = df[df["id"].isin(recent_ids)].copy()
-    if not recent_df.empty:
-        recent_df['sorter'] = recent_df['id'].map({id: idx for idx, id in enumerate(recent_ids)})
-        recent_df = recent_df.sort_values('sorter').drop('sorter', axis=1).reset_index(drop=True)
-        recent_df = filter_resources_by_rbac(recent_df, session)
-    return serialize_df(recent_df)
+    
+    recent_records = [r for r in records if r["id"] in recent_ids]
+    # Sort by recent_ids order
+    id_to_idx = {id: idx for idx, id in enumerate(recent_ids)}
+    recent_records.sort(key=lambda x: id_to_idx.get(x["id"], 9999))
+    
+    if recent_records:
+        recent_records = filter_resources_by_rbac(recent_records, session)
+    return clean_records(recent_records)
 
 @router.get("/")
 def get_public_resources(request: Request):
     session = require_session(request)
     try:
-        df = resources_get_all()
-        df = filter_resources_by_rbac(df, session)
-        return serialize_df(df)
+        records = resources_get_all()
+        records = filter_resources_by_rbac(records, session)
+        return clean_records(records)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

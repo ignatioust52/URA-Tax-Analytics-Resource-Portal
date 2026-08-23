@@ -12,15 +12,13 @@ from backend.api.deps import require_admin, require_session, get_session_or_none
 
 router = APIRouter()
 
-def clean_df(df):
-    import pandas as pd
-    if df.empty:
+def clean_records(records):
+    if not records:
         return []
-    records = df.to_dict(orient="records")
     for r in records:
         if "published_at" in r and r["published_at"]:
             r["published_at"] = str(r["published_at"])
-        if "expires_at" in r and pd.notnull(r.get("expires_at")):
+        if "expires_at" in r and r.get("expires_at"):
             r["expires_at"] = str(r["expires_at"])
         else:
             r["expires_at"] = None
@@ -36,8 +34,8 @@ def get_active_announcements(request: Request):
         session = require_session(request)
         # Filter by department if applicable (ABAC: department attribute)
         dept_id = session.get("department_id")
-        df = announcements_get_active(dept_id)
-        return clean_df(df)
+        records = announcements_get_active(dept_id)
+        return clean_records(records)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -45,8 +43,8 @@ def get_active_announcements(request: Request):
 def get_all_announcements(request: Request):
     require_admin(request)
     try:
-        df = announcements_get_all()
-        return clean_df(df)
+        records = announcements_get_all()
+        return clean_records(records)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

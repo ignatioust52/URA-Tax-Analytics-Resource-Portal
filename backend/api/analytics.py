@@ -1,30 +1,48 @@
 from fastapi import APIRouter, HTTPException, Request
 import pandas as pd
+import math
 from core.db_audit import get_audit_log
 from core.db_resources import resources_get_all
-from backend.api.resources import serialize_df
+from backend.api.resources import clean_records
 from backend.api.deps import require_admin
 
 router = APIRouter()
+
+def serialize_df(df):
+    """Convert pandas DataFrame to a list of dicts, handling NaNs."""
+    if df.empty:
+        return []
+    records = df.to_dict(orient="records")
+    clean = []
+    for r in records:
+        clean_r = {}
+        for k, v in r.items():
+            if isinstance(v, float) and math.isnan(v):
+                clean_r[k] = None
+            else:
+                clean_r[k] = v
+        clean.append(clean_r)
+    return clean
 
 @router.get("/")
 def get_analytics(request: Request):
     require_admin(request)
     
     try:
-        audit_df = get_audit_log(limit=5000)
-        if audit_df.empty:
+        audit_logs = get_audit_log(limit=5000)
+        if not audit_logs:
             return {"kpis": {}, "daily_views": [], "popular": [], "logs": []}
             
+        audit_df = pd.DataFrame(audit_logs)
         audit_df["logged_at"] = pd.to_datetime(audit_df["logged_at"])
         views_df = audit_df[audit_df["action"] == "resource_view"]
         
-        active_resources_df = resources_get_all()
-        active_names = active_resources_df["business_name"].tolist() if not active_resources_df.empty else []
+        active_resources = resources_get_all()
+        active_names = [r["business_name"] for r in active_resources] if active_resources else []
         views_df = views_df[views_df["resource_id"].isin(active_names)]
         
         if views_df.empty:
-            return {"kpis": {}, "daily_views": [], "popular": [], "logs": serialize_df(audit_df)}
+            return {"kpis": {}, "daily_views": [], "popular": [], "logs": clean_records(audit_logs)}
             
         # KPIs
         total_views = len(views_df)
@@ -50,7 +68,7 @@ def get_analytics(request: Request):
             },
             "daily_views": serialize_df(daily_views),
             "popular": serialize_df(popular),
-            "logs": serialize_df(audit_df)
+            "logs": clean_records(audit_logs)
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

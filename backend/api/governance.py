@@ -15,13 +15,12 @@ class ApprovalRequest(BaseModel):
 def get_pending_resources(request: Request):
     require_admin(request)
     
-    df = resources_get_all()
-    if not df.empty and "approval_status" in df.columns:
-        pending_df = df[df["approval_status"] == "PendingApproval"]
-    else:
-        pending_df = pd.DataFrame()
+    resources = resources_get_all()
+    pending = [r for r in resources if r.get("approval_status") == "PendingApproval"]
         
-    return serialize_df(pending_df)
+    # Re-use the existing serialize formatting logic from resources.py but adapted for dicts
+    from backend.api.resources import clean_records
+    return clean_records(pending)
 
 @router.post("/approve")
 def update_approval(req: ApprovalRequest, request: Request):
