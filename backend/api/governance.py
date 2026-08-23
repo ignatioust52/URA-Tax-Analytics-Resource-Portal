@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 import pandas as pd
 from core.db_resources import resources_get_all, resources_update_approval
-from backend.api.resources import serialize_df
+from backend.api.resources import clean_records
 from backend.api.deps import require_admin
 
 router = APIRouter()
@@ -19,7 +19,6 @@ def get_pending_resources(request: Request):
     pending = [r for r in resources if r.get("approval_status") == "PendingApproval"]
         
     # Re-use the existing serialize formatting logic from resources.py but adapted for dicts
-    from backend.api.resources import clean_records
     return clean_records(pending)
 
 @router.post("/approve")
