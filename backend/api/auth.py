@@ -28,7 +28,8 @@ def login(login_req: LoginRequest, response: Response):
         key="session_token", 
         value=session_token, 
         httponly=True, 
-        samesite="lax",
+        samesite="none",
+        secure=True,
         max_age=3600
     )
     
@@ -46,7 +47,7 @@ def logout(request: Request, response: Response):
     token = request.cookies.get("session_token")
     if token:
         delete_user_session(token)
-    response.delete_cookie("session_token")
+    response.delete_cookie("session_token", samesite="none", secure=True)
     return {"success": True}
 
 @router.get("/me")
