@@ -161,12 +161,7 @@ class ResourceCreate(BaseModel):
 
 @router.post("/")
 def create_resource(res: ResourceCreate, request: Request):
-    token = request.cookies.get("session_token")
-    if not token:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    session = get_active_session(token)
-    if not session:
-        raise HTTPException(status_code=401, detail="Invalid session")
+    session = require_session(request)
         
     try:
         from core.db_resources import resources_create
