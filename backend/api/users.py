@@ -14,10 +14,8 @@ class StatusRequest(BaseModel):
 @router.get("/")
 def get_users(request: Request):
     require_admin(request)
-    df = users_get_all()
-    if df.empty:
-        return []
-    return serialize_df(df)
+    users = users_get_all()
+    return users or []
 
 @router.post("/status")
 def update_status(req: StatusRequest, request: Request):
@@ -35,10 +33,8 @@ def update_status(req: StatusRequest, request: Request):
 def get_pending_users(request: Request):
     require_admin(request)
     from core.db_users import users_get_pending
-    df = users_get_pending()
-    if df.empty:
-        return []
-    return serialize_df(df)
+    users = users_get_pending()
+    return users or []
 
 class ApproveRequest(BaseModel):
     user_id: int
@@ -93,21 +89,25 @@ def create_user(req: CreateUserRequest, request: Request):
 @router.get("/sessions")
 def get_sessions(request: Request):
     require_admin(request)
-    from core.db import get_connection
-    import pandas as pd
+    from core.db import get_db_connection
     
-    conn = get_connection()
-    query = """
-        SELECT us.token, us.user_id, us.last_activity_at, u.email, u.department
-        FROM user_sessions us
-        JOIN app_users u ON u.id = us.user_id
-        ORDER BY us.last_activity_at DESC
-    """
-    df = pd.read_sql(query, conn)
-    # Convert timestamps to string
-    if not df.empty:
-        df["last_activity_at"] = df["last_activity_at"].astype(str)
-    return serialize_df(df)
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            query = """
+                SELECT us.token, us.user_id, us.last_activity_at, u.email, u.department
+                FROM user_sessions us
+                JOIN app_users u ON u.id = us.user_id
+                ORDER BY us.last_activity_at DESC
+            """
+            cur.execute(query)
+            cols = [desc[0] for desc in cur.description]
+            sessions = []
+            for row in cur.fetchall():
+                row_dict = dict(zip(cols, row))
+                if row_dict.get("last_activity_at"):
+                    row_dict["last_activity_at"] = str(row_dict["last_activity_at"])
+                sessions.append(row_dict)
+            return sessions
 
 @router.delete("/sessions/{token}")
 def revoke_session(token: str, request: Request):
