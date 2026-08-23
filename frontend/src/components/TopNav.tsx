@@ -77,13 +77,18 @@ export function TopNav() {
           </span>
           
           {user && (
-            <button 
-              className="hidden-desktop" 
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '1.5rem', padding: '0.5rem' }}
-            >
-              ☰
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <button onClick={logout} className="hidden-mobile btn-secondary" style={{ padding: '0.4rem 0.75rem', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>
+                Log out
+              </button>
+              <button 
+                className="hidden-desktop" 
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '1.5rem', padding: '0.5rem' }}
+              >
+                ☰
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -149,9 +154,6 @@ export function TopNav() {
                   </div>
                 </div>
               </div>
-              <button onClick={logout} className="btn-secondary" style={{ padding: '0.5rem 1rem', background: 'transparent', border: '1px solid white', color: 'white', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
-                Log out
-              </button>
             </div>
           </div>
 
