@@ -199,7 +199,7 @@ export default function ResourcesPage() {
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
-          {user && (
+          {user?.role && (user.role.includes('admin') || user.role === 'manager') && (
             <Button onClick={() => { setEditingResource(null); setShowModal(true); }} style={{ whiteSpace: 'nowrap', height: '42px' }}>
               + Add Resource
             </Button>
