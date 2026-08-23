@@ -73,6 +73,22 @@ app.include_router(announcements_router, prefix="/api/announcements", tags=["Ann
 @app.on_event("startup")
 async def startup():
     FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+    
+    # Auto-run database migrations/upgrades on startup
+    try:
+        import os
+        from core.db import get_connection
+        sql_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "db_rbac_upgrade.sql")
+        if os.path.exists(sql_path):
+            with open(sql_path, "r") as f:
+                sql = f.read()
+            with get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(sql)
+                conn.commit()
+            print("Successfully executed db_rbac_upgrade.sql")
+    except Exception as e:
+        print(f"Error executing DB upgrade script: {e}")
 
 @app.get("/api/health")
 def health_check():

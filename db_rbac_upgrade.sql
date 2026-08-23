@@ -127,3 +127,17 @@ BEGIN
         END IF;
     END IF;
 END $$;
+
+-- 8. User Department Access
+CREATE TABLE IF NOT EXISTS user_department_access (
+    user_id INTEGER REFERENCES app_users(id) ON DELETE CASCADE,
+    department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, department_id)
+);
+
+-- 9. Resource Department Access
+CREATE TABLE IF NOT EXISTS resource_department_access (
+    resource_id INTEGER REFERENCES public_resources(id) ON DELETE CASCADE,
+    department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
+    PRIMARY KEY (resource_id, department_id)
+);
