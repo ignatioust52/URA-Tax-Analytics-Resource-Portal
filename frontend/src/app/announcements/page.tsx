@@ -42,9 +42,11 @@ export default function AnnouncementsPage() {
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
-    if (!authLoading && (!user || (user.role !== 'admin' && user.role !== 'Super Administrator' && user.role !== 'System Administrator'))) {
+    const isUserAdmin = user && user.role && (user.role.includes('admin') || user.role === 'manager');
+    
+    if (!authLoading && !isUserAdmin) {
       router.push('/');
-    } else if (user && (user.role === 'admin' || user.role === 'Super Administrator' || user.role === 'System Administrator')) {
+    } else if (isUserAdmin) {
       fetchAnnouncements();
       apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/all-departments`)
         .then(d => setAllDepartments(d))
@@ -131,7 +133,9 @@ export default function AnnouncementsPage() {
   };
 
   if (authLoading || loading) return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading...</div>;
-  if (!user || (user.role !== 'admin' && user.role !== 'Super Administrator' && user.role !== 'System Administrator')) return null;
+  
+  const isAdmin = user && user.role && (user.role.includes('admin') || user.role === 'manager');
+  if (!isAdmin) return null;
 
   return (
     <AdminGuard>
