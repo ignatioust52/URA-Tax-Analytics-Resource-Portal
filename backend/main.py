@@ -77,15 +77,14 @@ async def startup():
     # Auto-run database migrations/upgrades on startup
     try:
         import os
-        from core.db import get_connection
+        from core.db import get_db_connection
         sql_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "db_rbac_upgrade.sql")
         if os.path.exists(sql_path):
             with open(sql_path, "r") as f:
                 sql = f.read()
-            with get_connection() as conn:
+            with get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(sql)
-                conn.commit()
             print("Successfully executed db_rbac_upgrade.sql")
     except Exception as e:
         print(f"Error executing DB upgrade script: {e}")
