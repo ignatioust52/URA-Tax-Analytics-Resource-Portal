@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { ResourceFormModal } from '../../components/ResourceFormModal';
+import { apiFetch } from '../../lib/api';
 
 type Resource = {
   id: number;
@@ -83,11 +84,12 @@ export default function ResourcesPage() {
 
   useEffect(() => {
     // Fetch all initial data concurrently
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources/favorites`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources/recent`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements/active`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
+      apiFetch(`${baseUrl}/api/resources`).catch(() => []),
+      apiFetch(`${baseUrl}/api/resources/favorites`).catch(() => []),
+      apiFetch(`${baseUrl}/api/resources/recent`).catch(() => []),
+      apiFetch(`${baseUrl}/api/announcements/active`).catch(() => []),
     ]).then(([resData, favData, recentData, annData]) => {
       setResources(resData || []);
       setFavorites(favData || []);
