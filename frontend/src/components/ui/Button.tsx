@@ -76,17 +76,20 @@ export function Button({
     }
   };
 
+  const { style: customStyle, ...restProps } = props;
+  
   const commonProps = {
     style: {
       ...baseStyles,
       ...variants[variant],
       ...sizes[size],
       ...getHoverStyle(),
+      ...customStyle,
     },
     onMouseEnter: () => setIsHovered(true),
     onMouseLeave: () => setIsHovered(false),
     className,
-    ...props
+    ...restProps
   };
 
   if (as === 'a') {
