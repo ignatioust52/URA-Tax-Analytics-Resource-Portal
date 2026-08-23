@@ -2,6 +2,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { AdminGuard } from '../../components/AdminGuard';
 import { apiFetch } from '../../lib/api';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<{role: 'user' | 'assistant', content: string}[]>([]);
@@ -47,61 +50,63 @@ export default function ChatPage() {
 
   return (
     <AdminGuard>
-      <main className="main-container" style={{ display: 'flex', flexDirection: 'column', height: '100vh', padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+      <main className="main-container" style={{ display: 'flex', flexDirection: 'column', height: '100vh', padding: 'var(--space-4)' }}>
+      <div className="flex-between" style={{ marginBottom: 'var(--space-4)' }}>
         <div>
-          <h1 className="header-title" style={{ fontSize: '1.5rem', margin: 0 }}>URA AI Assistant</h1>
+          <h1 className="page-title" style={{ margin: 0, fontSize: '1.5rem' }}>URA AI Assistant</h1>
         </div>
-        <a href="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>← Dashboard</a>
+        <Button as="a" href="/" variant="secondary">← Dashboard</Button>
       </div>
 
-      <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <Card noPadding style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
           {messages.length === 0 ? (
-            <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: '40px' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '16px' }}>🤖</div>
-              <h3>How can I help you today?</h3>
+            <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: 'var(--space-6)' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: 'var(--space-3)' }}>🤖</div>
+              <h3 style={{ color: 'var(--text-primary)', marginBottom: 'var(--space-2)' }}>How can I help you today?</h3>
               <p>Ask me about tax codes, resources, or dashboard data.</p>
             </div>
           ) : (
             messages.map((m, idx) => (
               <div key={idx} style={{ 
                 alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
-                background: m.role === 'user' ? '#3b82f6' : 'rgba(255,255,255,0.1)',
+                background: m.role === 'user' ? 'var(--ura-blue)' : 'var(--surface-hover)',
                 padding: '12px 16px',
-                borderRadius: '16px',
-                borderBottomRightRadius: m.role === 'user' ? '4px' : '16px',
-                borderBottomLeftRadius: m.role === 'assistant' ? '4px' : '16px',
+                borderRadius: 'var(--radius-lg)',
+                borderBottomRightRadius: m.role === 'user' ? '4px' : 'var(--radius-lg)',
+                borderBottomLeftRadius: m.role === 'assistant' ? '4px' : 'var(--radius-lg)',
                 maxWidth: '80%',
-                color: 'white',
-                lineHeight: '1.5'
+                color: m.role === 'user' ? 'var(--text-inverse)' : 'var(--text-primary)',
+                lineHeight: '1.5',
+                fontSize: '0.95rem'
               }}>
                 {m.content}
               </div>
             ))
           )}
           {loading && (
-            <div style={{ alignSelf: 'flex-start', background: 'rgba(255,255,255,0.1)', padding: '12px 16px', borderRadius: '16px', color: 'var(--text-secondary)' }}>
+            <div style={{ alignSelf: 'flex-start', background: 'var(--surface-hover)', padding: '12px 16px', borderRadius: 'var(--radius-lg)', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
               Thinking...
             </div>
           )}
           <div ref={messagesEndRef} />
         </div>
 
-        <form onSubmit={handleSend} style={{ display: 'flex', padding: '16px', borderTop: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)' }}>
-          <input 
-            type="text" 
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            style={{ flex: 1, padding: '12px 16px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white', marginRight: '16px' }}
-            disabled={loading}
-          />
-          <button type="submit" className="btn-primary" style={{ borderRadius: '24px', padding: '12px 24px' }} disabled={loading}>
+        <form onSubmit={handleSend} style={{ display: 'flex', padding: 'var(--space-3)', borderTop: '1px solid var(--border-light)', background: 'var(--surface)' }}>
+          <div style={{ flex: 1, marginRight: 'var(--space-3)' }}>
+            <Input 
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
+              disabled={loading}
+              style={{ marginBottom: 0 }}
+            />
+          </div>
+          <Button type="submit" disabled={loading}>
             Send
-          </button>
+          </Button>
         </form>
-      </div>
+      </Card>
       </main>
     </AdminGuard>
   );

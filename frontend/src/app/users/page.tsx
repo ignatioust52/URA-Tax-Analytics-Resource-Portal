@@ -2,6 +2,10 @@
 import { useEffect, useState } from 'react';
 import { AdminGuard } from '../../components/AdminGuard';
 import { apiFetch } from '../../lib/api';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { Badge } from '../../components/ui/Badge';
+import { Input } from '../../components/ui/Input';
 
 export default function UsersPage() {
   const [activeTab, setActiveTab] = useState('active');
@@ -89,10 +93,10 @@ export default function UsersPage() {
     return (
       <AdminGuard>
         <main className="main-container">
-          <div className="glass-panel" style={{ color: '#ef4444', textAlign: 'center' }}>
+          <Card style={{ color: 'var(--error)', textAlign: 'center' }}>
             <h2>Access Denied</h2>
             <p>You must be an administrator to view this page.</p>
-          </div>
+          </Card>
         </main>
       </AdminGuard>
     );
@@ -101,25 +105,31 @@ export default function UsersPage() {
   return (
     <AdminGuard>
       <main className="main-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      <div className="flex-between" style={{ marginBottom: 'var(--space-5)' }}>
         <div>
-          <h1 className="header-title" style={{ fontSize: '2rem' }}>User Management</h1>
-          <p className="header-subtitle" style={{ marginBottom: 0 }}>Manage access and roles for all system users</p>
+          <h1 className="page-title" style={{ margin: 0 }}>User Management</h1>
+          <p className="page-subtitle" style={{ margin: 'var(--space-1) 0 0 0' }}>Manage access and roles for all system users</p>
         </div>
-        <a href="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>← Back to Dashboard</a>
+        <Button as="a" href="/" variant="secondary">
+          ← Back to Dashboard
+        </Button>
       </div>
 
-      <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid var(--border)', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-4)', borderBottom: '1px solid var(--border-light)', marginBottom: 'var(--space-4)' }}>
         {['active', 'pending', 'create'].map(tab => (
           <button 
             key={tab}
             onClick={() => setActiveTab(tab)}
             style={{
-              background: 'none', border: 'none', padding: '12px 4px', cursor: 'pointer',
-              color: activeTab === tab ? 'white' : 'var(--text-secondary)',
-              borderBottom: activeTab === tab ? '2px solid var(--accent)' : '2px solid transparent',
-              fontWeight: activeTab === tab ? 600 : 400,
-              textTransform: 'capitalize'
+              background: 'none', 
+              border: 'none', 
+              padding: 'var(--space-3) var(--space-1)', 
+              cursor: 'pointer',
+              color: activeTab === tab ? 'var(--ura-blue)' : 'var(--text-secondary)',
+              borderBottom: activeTab === tab ? '2px solid var(--ura-blue)' : '2px solid transparent',
+              fontWeight: activeTab === tab ? 600 : 500,
+              textTransform: 'capitalize',
+              fontSize: '0.95rem'
             }}
           >
             {tab === 'active' ? 'Active Users' : 
@@ -129,93 +139,114 @@ export default function UsersPage() {
       </div>
 
       {loading ? (
-        <div className="glass-panel" style={{ textAlign: 'center' }}>Loading Users...</div>
+        <Card style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Loading Users...</Card>
       ) : activeTab === 'active' ? (
-        <div className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <Card noPadding style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
             <thead>
-              <tr style={{ background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid var(--border)' }}>
-                <th style={{ padding: '16px' }}>Email</th>
-                <th style={{ padding: '16px' }}>Role</th>
-                <th style={{ padding: '16px' }}>Department</th>
-                <th style={{ padding: '16px' }}>Status</th>
-                <th style={{ padding: '16px' }}>Joined</th>
-                <th style={{ padding: '16px' }}>Actions</th>
+              <tr style={{ background: 'var(--surface-hover)', borderBottom: '1px solid var(--border-light)' }}>
+                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem', textTransform: 'uppercase' }}>Email</th>
+                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem', textTransform: 'uppercase' }}>Role</th>
+                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem', textTransform: 'uppercase' }}>Department</th>
+                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem', textTransform: 'uppercase' }}>Status</th>
+                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem', textTransform: 'uppercase' }}>Joined</th>
+                <th style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {data.map((user, idx) => (
-                <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '16px' }}>{user.email}</td>
-                  <td style={{ padding: '16px' }}>
-                    <span style={{ padding: '4px 8px', background: user.role === 'admin' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.1)', borderRadius: '4px', fontSize: '0.85rem' }}>
+                <tr key={idx} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                  <td style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 500 }}>{user.email}</td>
+                  <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
+                    <Badge variant={user.role === 'admin' ? 'info' : 'neutral'}>
                       {user.role || 'none'}
-                    </span>
+                    </Badge>
                   </td>
-                  <td style={{ padding: '16px' }}>{user.department || '-'}</td>
-                  <td style={{ padding: '16px' }}>
-                    <span style={{ color: user.is_active ? '#22c55e' : '#ef4444' }}>
+                  <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)' }}>{user.department || '-'}</td>
+                  <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
+                    <Badge variant={user.is_active ? 'success' : 'error'}>
                       {user.status}
-                    </span>
+                    </Badge>
                   </td>
-                  <td style={{ padding: '16px', color: 'var(--text-secondary)' }}>
+                  <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>
                     {new Date(user.created_at).toLocaleDateString()}
                   </td>
-                  <td style={{ padding: '16px', display: 'flex', gap: '8px' }}>
+                  <td style={{ padding: 'var(--space-3) var(--space-4)', textAlign: 'right' }}>
                     {user.is_active ? (
-                      <button onClick={() => handleStatusUpdate(user.id, false, 'disabled')} className="btn-primary" style={{ padding: '6px 12px', background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', fontSize: '0.85rem' }}>
+                      <Button size="sm" variant="danger" onClick={() => handleStatusUpdate(user.id, false, 'disabled')}>
                         Disable
-                      </button>
+                      </Button>
                     ) : (
-                      <button onClick={() => handleStatusUpdate(user.id, true, 'active')} className="btn-primary" style={{ padding: '6px 12px', background: '#22c55e', fontSize: '0.85rem' }}>
+                      <Button size="sm" onClick={() => handleStatusUpdate(user.id, true, 'active')}>
                         Enable
-                      </button>
+                      </Button>
                     )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       ) : activeTab === 'pending' ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
           {pendingUsers.length === 0 ? (
-            <div className="glass-panel" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No pending registrations found.</div>
+            <Card style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No pending registrations found.</Card>
           ) : pendingUsers.map(pu => (
-            <div key={pu.id} className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Card key={pu.id} className="flex-between">
               <div>
-                <h4 style={{ marginBottom: '4px' }}>{pu.email}</h4>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Requested Department: {pu.requested_department || 'None'}</div>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>{pu.email}</h4>
+                <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Requested Department: <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{pu.requested_department || 'None'}</span></div>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => handleReject(pu.id)} className="btn-secondary" style={{ color: '#ef4444', borderColor: '#ef4444' }}>Reject</button>
-                <button onClick={() => handleApprove(pu.id)} className="btn-primary" style={{ background: '#22c55e' }}>Approve</button>
+                <Button variant="danger" onClick={() => handleReject(pu.id)}>Reject</Button>
+                <Button onClick={() => handleApprove(pu.id)}>Approve</Button>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       ) : (
-        <div className="glass-panel" style={{ maxWidth: '500px', margin: '0 auto' }}>
-          <h3 style={{ marginBottom: '24px' }}>Create New Account</h3>
-          <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Email</label>
-              <input type="email" required value={createForm.email} onChange={e => setCreateForm({...createForm, email: e.target.value})} style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: 'white' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Temporary Password</label>
-              <input type="password" required value={createForm.password} onChange={e => setCreateForm({...createForm, password: e.target.value})} style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: 'white' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Role</label>
-              <select value={createForm.role} onChange={e => setCreateForm({...createForm, role: e.target.value})} style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: 'white' }}>
+        <Card style={{ maxWidth: '500px', margin: '0 auto' }}>
+          <h3 style={{ marginBottom: 'var(--space-4)' }}>Create New Account</h3>
+          <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
+            <Input 
+              label="Email Address"
+              type="email" 
+              required 
+              value={createForm.email} 
+              onChange={e => setCreateForm({...createForm, email: e.target.value})} 
+              placeholder="user@ura.go.ug"
+            />
+            <Input 
+              label="Temporary Password"
+              type="password" 
+              required 
+              value={createForm.password} 
+              onChange={e => setCreateForm({...createForm, password: e.target.value})} 
+              placeholder="••••••••"
+            />
+            <div style={{ marginBottom: 'var(--space-3)' }}>
+              <label>Role</label>
+              <select 
+                value={createForm.role} 
+                onChange={e => setCreateForm({...createForm, role: e.target.value})} 
+                style={{ 
+                  width: '100%', 
+                  padding: '10px 12px', 
+                  borderRadius: 'var(--radius-md)', 
+                  border: '1px solid var(--border-medium)', 
+                  background: 'var(--surface)', 
+                  color: 'var(--text-primary)',
+                  fontSize: '0.95rem',
+                  outline: 'none'
+                }}
+              >
                 <option value="viewer">Viewer</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
-            <button type="submit" className="btn-primary" style={{ marginTop: '16px', padding: '12px' }}>Create Account</button>
+            <Button type="submit" fullWidth style={{ marginTop: 'var(--space-2)' }}>Create Account</Button>
           </form>
-        </div>
+        </Card>
       )}
       </main>
     </AdminGuard>

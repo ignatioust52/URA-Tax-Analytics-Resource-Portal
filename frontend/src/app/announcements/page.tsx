@@ -4,6 +4,10 @@ import { AdminGuard } from '../../components/AdminGuard';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { apiFetch } from '../../lib/api';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { Badge } from '../../components/ui/Badge';
+import { Input } from '../../components/ui/Input';
 
 type Announcement = {
   announcement_id: number;
@@ -113,113 +117,127 @@ export default function AnnouncementsPage() {
     }
   };
 
-  if (authLoading || loading) return <div style={{ padding: '40px', textAlign: 'center', color: 'white' }}>Loading...</div>;
+  if (authLoading || loading) return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading...</div>;
   if (!user || user.role !== 'admin') return null;
 
   return (
     <AdminGuard>
       <main className="main-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      <div className="flex-between" style={{ marginBottom: 'var(--space-5)' }}>
         <div>
-          <h1 className="header-title" style={{ fontSize: '2rem' }}>Announcements</h1>
-          <p className="header-subtitle" style={{ marginBottom: 0 }}>Manage news feed broadcasts</p>
+          <h1 className="page-title" style={{ margin: 0 }}>Announcements</h1>
+          <p className="page-subtitle" style={{ margin: 'var(--space-1) 0 0 0' }}>Manage news feed broadcasts</p>
         </div>
-        <button onClick={() => openModal()} className="btn-primary">
+        <Button onClick={() => openModal()}>
           + New Announcement
-        </button>
+        </Button>
       </div>
 
-      <div className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+      <Card noPadding style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
           <thead>
-            <tr style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid var(--border)' }}>
-              <th style={{ padding: '16px', fontWeight: 600, color: 'var(--text-secondary)' }}>Status</th>
-              <th style={{ padding: '16px', fontWeight: 600, color: 'var(--text-secondary)' }}>Title</th>
-              <th style={{ padding: '16px', fontWeight: 600, color: 'var(--text-secondary)' }}>Audience</th>
-              <th style={{ padding: '16px', fontWeight: 600, color: 'var(--text-secondary)' }}>Published</th>
-              <th style={{ padding: '16px', fontWeight: 600, color: 'var(--text-secondary)' }}>Expires</th>
-              <th style={{ padding: '16px', fontWeight: 600, color: 'var(--text-secondary)' }}>Actions</th>
+            <tr style={{ background: 'var(--surface-hover)', borderBottom: '1px solid var(--border-light)' }}>
+              <th style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Status</th>
+              <th style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Title</th>
+              <th style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Audience</th>
+              <th style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Published</th>
+              <th style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Expires</th>
+              <th style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {announcements.length === 0 ? (
-              <tr><td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)' }}>No announcements found.</td></tr>
+              <tr><td colSpan={6} style={{ padding: 'var(--space-4)', textAlign: 'center', color: 'var(--text-secondary)' }}>No announcements found.</td></tr>
             ) : announcements.map(ann => (
-              <tr key={ann.announcement_id} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td style={{ padding: '16px' }}>
-                  {ann.is_active ? <span className="ura-chip ura-chip-green">Active</span> : <span className="ura-chip ura-chip-gray">Inactive</span>}
+              <tr key={ann.announcement_id} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
+                  <Badge variant={ann.is_active ? 'success' : 'neutral'}>{ann.is_active ? 'Active' : 'Inactive'}</Badge>
                 </td>
-                <td style={{ padding: '16px', fontWeight: 500 }}>{ann.title}</td>
-                <td style={{ padding: '16px', color: 'var(--text-secondary)' }}>{ann.audience_department_id ? `Dept ID: ${ann.audience_department_id}` : 'Global'}</td>
-                <td style={{ padding: '16px', color: 'var(--text-secondary)' }}>{new Date(ann.published_at).toLocaleDateString()}</td>
-                <td style={{ padding: '16px', color: 'var(--text-secondary)' }}>{ann.expires_at ? new Date(ann.expires_at).toLocaleDateString() : 'Never'}</td>
-                <td style={{ padding: '16px' }}>
-                  <button onClick={() => openModal(ann)} className="btn-secondary" style={{ marginRight: '8px', padding: '6px 12px', fontSize: '0.85rem' }}>Edit</button>
-                  <button onClick={() => handleDelete(ann.announcement_id)} className="btn-primary" style={{ background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 12px', fontSize: '0.85rem' }}>Delete</button>
+                <td style={{ padding: 'var(--space-3) var(--space-4)', fontWeight: 500 }}>{ann.title}</td>
+                <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)' }}>{ann.audience_department_id ? `Dept ID: ${ann.audience_department_id}` : 'Global'}</td>
+                <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{new Date(ann.published_at).toLocaleDateString()}</td>
+                <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{ann.expires_at ? new Date(ann.expires_at).toLocaleDateString() : 'Never'}</td>
+                <td style={{ padding: 'var(--space-3) var(--space-4)', textAlign: 'right' }}>
+                  <Button variant="secondary" size="sm" onClick={() => openModal(ann)} style={{ marginRight: '8px' }}>Edit</Button>
+                  <Button variant="danger" size="sm" onClick={() => handleDelete(ann.announcement_id)}>Delete</Button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
+      </Card>
 
       {showModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '600px', padding: '32px' }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '24px' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <Card style={{ width: '100%', maxWidth: '600px', padding: 'var(--space-5)', boxShadow: 'var(--shadow-lg)' }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: 'var(--space-4)' }}>
               {editingAnn ? 'Edit Announcement' : 'New Announcement'}
             </h2>
             
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Title</label>
-                <input 
-                  type="text" value={title} onChange={e => setTitle(e.target.value)} required 
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
-                />
-              </div>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
+              <Input 
+                label="Title"
+                value={title} 
+                onChange={e => setTitle(e.target.value)} 
+                required 
+              />
               
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Body</label>
+              <div style={{ marginBottom: 'var(--space-3)' }}>
+                <label>Body</label>
                 <textarea 
-                  value={body} onChange={e => setBody(e.target.value)} required rows={4}
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white', resize: 'vertical' }}
+                  value={body} 
+                  onChange={e => setBody(e.target.value)} 
+                  required 
+                  rows={4}
+                  style={{ 
+                    width: '100%', 
+                    padding: '10px 12px', 
+                    borderRadius: 'var(--radius-md)', 
+                    border: '1px solid var(--border-medium)', 
+                    background: 'var(--surface)', 
+                    color: 'var(--text-primary)',
+                    fontSize: '0.95rem',
+                    outline: 'none',
+                    resize: 'vertical'
+                  }}
                 />
               </div>
               
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Target Department ID (Optional)</label>
-                  <input 
-                    type="number" value={deptId} onChange={e => setDeptId(e.target.value)} placeholder="Leave empty for Global"
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
-                  />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Expires At (Optional)</label>
-                  <input 
-                    type="datetime-local" value={expiresAt} onChange={e => setExpiresAt(e.target.value)} 
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
-                  />
-                </div>
+              <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+                <Input 
+                  label="Target Department ID (Optional)"
+                  type="number" 
+                  value={deptId} 
+                  onChange={e => setDeptId(e.target.value)} 
+                  placeholder="Leave empty for Global"
+                />
+                <Input 
+                  label="Expires At (Optional)"
+                  type="datetime-local" 
+                  value={expiresAt} 
+                  onChange={e => setExpiresAt(e.target.value)} 
+                />
               </div>
 
               {editingAnn && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: 'var(--space-2)' }}>
                   <input 
-                    type="checkbox" id="isActive" checked={isActive} onChange={e => setIsActive(e.target.checked)}
+                    type="checkbox" 
+                    id="isActive" 
+                    checked={isActive} 
+                    onChange={e => setIsActive(e.target.checked)}
                     style={{ width: '16px', height: '16px' }}
                   />
-                  <label htmlFor="isActive" style={{ color: 'var(--text-secondary)' }}>Active (Visible in News Feed)</label>
+                  <label htmlFor="isActive" style={{ margin: 0, fontWeight: 500, color: 'var(--text-secondary)' }}>Active (Visible in News Feed)</label>
                 </div>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
-                <button type="button" onClick={() => setShowModal(false)} className="btn-secondary">Cancel</button>
-                <button type="submit" className="btn-primary">Save Announcement</button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: 'var(--space-5)' }}>
+                <Button type="button" variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+                <Button type="submit">Save Announcement</Button>
               </div>
             </form>
-          </div>
+          </Card>
         </div>
       )}
       </main>

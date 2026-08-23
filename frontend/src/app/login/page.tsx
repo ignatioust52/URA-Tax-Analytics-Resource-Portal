@@ -2,6 +2,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
 
 export default function LoginPage() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -85,104 +88,149 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="main-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: 'radial-gradient(circle at top, #1e293b 0%, #0f172a 100%)' }}>
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '420px', padding: '40px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <h1 className="header-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>URA Portal</h1>
-          <p className="header-subtitle" style={{ fontSize: '1rem', margin: 0 }}>Revenue Dashboard</p>
+    <main style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '100vh', 
+      background: 'var(--background)' 
+    }}>
+      <div style={{ width: '100%', maxWidth: '440px', padding: 'var(--space-4)' }}>
+        
+        <div style={{ textAlign: 'center', marginBottom: 'var(--space-5)' }}>
+          <h1 className="page-title" style={{ margin: 0 }}>URA GO PORTAL</h1>
+          <p className="page-subtitle" style={{ margin: 'var(--space-1) 0 0 0' }}>Enterprise Analytics & Resources</p>
         </div>
         
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '1px solid var(--border)' }}>
-          <button 
-            onClick={() => setActiveTab('login')}
-            style={{ flex: 1, padding: '12px', background: 'none', border: 'none', color: activeTab === 'login' ? 'white' : 'var(--text-secondary)', borderBottom: activeTab === 'login' ? '2px solid var(--accent)' : '2px solid transparent', cursor: 'pointer', fontWeight: 600 }}
-          >
-            Sign In
-          </button>
-          <button 
-            onClick={() => setActiveTab('register')}
-            style={{ flex: 1, padding: '12px', background: 'none', border: 'none', color: activeTab === 'register' ? 'white' : 'var(--text-secondary)', borderBottom: activeTab === 'register' ? '2px solid var(--accent)' : '2px solid transparent', cursor: 'pointer', fontWeight: 600 }}
-          >
-            Create Account
-          </button>
-        </div>
+        <Card>
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--border-light)', marginBottom: 'var(--space-4)' }}>
+            <button 
+              onClick={() => setActiveTab('login')}
+              style={{ 
+                flex: 1, 
+                padding: 'var(--space-3)', 
+                background: 'none', 
+                border: 'none', 
+                color: activeTab === 'login' ? 'var(--ura-blue)' : 'var(--text-secondary)', 
+                borderBottom: activeTab === 'login' ? '2px solid var(--ura-blue)' : '2px solid transparent', 
+                cursor: 'pointer', 
+                fontWeight: 600,
+                fontSize: '0.95rem'
+              }}
+            >
+              Sign In
+            </button>
+            <button 
+              onClick={() => setActiveTab('register')}
+              style={{ 
+                flex: 1, 
+                padding: 'var(--space-3)', 
+                background: 'none', 
+                border: 'none', 
+                color: activeTab === 'register' ? 'var(--ura-blue)' : 'var(--text-secondary)', 
+                borderBottom: activeTab === 'register' ? '2px solid var(--ura-blue)' : '2px solid transparent', 
+                cursor: 'pointer', 
+                fontWeight: 600,
+                fontSize: '0.95rem'
+              }}
+            >
+              Request Access
+            </button>
+          </div>
+          
+          {activeTab === 'login' ? (
+            <div>
+              {loginError && (
+                <div style={{ background: 'var(--error-bg)', border: '1px solid var(--error)', color: 'var(--error)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)', textAlign: 'center', fontSize: '0.9rem', fontWeight: 500 }}>
+                  {loginError}
+                </div>
+              )}
+              
+              <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column' }}>
+                <Input 
+                  label="Email Address"
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  placeholder="admin@ura.go.ug" 
+                  required 
+                  autoComplete="off"
+                />
+                <Input 
+                  label="Password"
+                  type="password" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  placeholder="••••••••" 
+                  required 
+                  autoComplete="new-password"
+                />
+                <Button type="submit" fullWidth size="lg" style={{ marginTop: 'var(--space-2)' }}>
+                  Secure Login
+                </Button>
+              </form>
+            </div>
+          ) : (
+            <div>
+              {regError && (
+                <div style={{ background: 'var(--error-bg)', border: '1px solid var(--error)', color: 'var(--error)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)', textAlign: 'center', fontSize: '0.9rem', fontWeight: 500 }}>
+                  {regError}
+                </div>
+              )}
+              {regSuccess && (
+                <div style={{ background: 'var(--success-bg)', border: '1px solid var(--success)', color: 'var(--success)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)', textAlign: 'center', fontSize: '0.9rem', fontWeight: 500 }}>
+                  {regSuccess}
+                </div>
+              )}
+              
+              <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column' }}>
+                <Input 
+                  label="Email Address"
+                  type="email" 
+                  value={regEmail} 
+                  onChange={(e) => setRegEmail(e.target.value)} 
+                  placeholder="user@ura.go.ug" 
+                  required 
+                  autoComplete="off"
+                />
+                <Input 
+                  label="Department"
+                  type="text" 
+                  value={regDepartment} 
+                  onChange={(e) => setRegDepartment(e.target.value)} 
+                  placeholder="e.g. Data Analytics" 
+                  required 
+                  autoComplete="off"
+                />
+                <Input 
+                  label="Password"
+                  type="password" 
+                  value={regPassword} 
+                  onChange={(e) => setRegPassword(e.target.value)} 
+                  placeholder="••••••••" 
+                  required 
+                  autoComplete="new-password"
+                />
+                <Input 
+                  label="Confirm Password"
+                  type="password" 
+                  value={regConfirm} 
+                  onChange={(e) => setRegConfirm(e.target.value)} 
+                  placeholder="••••••••" 
+                  required 
+                  autoComplete="new-password"
+                />
+                <Button type="submit" fullWidth size="lg" style={{ marginTop: 'var(--space-2)' }}>
+                  Submit Request
+                </Button>
+              </form>
+            </div>
+          )}
+        </Card>
         
-        {activeTab === 'login' ? (
-          <div>
-            {loginError && (
-              <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#fca5a5', padding: '12px', borderRadius: '8px', marginBottom: '24px', textAlign: 'center', fontSize: '0.9rem' }}>
-                {loginError}
-              </div>
-            )}
-            
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Email Address</label>
-                <input 
-                  type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@ura.go.ug" required autoComplete="off"
-                  style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Password</label>
-                <input 
-                  type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required autoComplete="new-password"
-                  style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
-                />
-              </div>
-              <button type="submit" className="btn-primary" style={{ marginTop: '12px', padding: '14px', width: '100%', fontWeight: 600 }}>
-                Secure Login
-              </button>
-            </form>
-          </div>
-        ) : (
-          <div>
-            {regError && (
-              <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#fca5a5', padding: '12px', borderRadius: '8px', marginBottom: '24px', textAlign: 'center', fontSize: '0.9rem' }}>
-                {regError}
-              </div>
-            )}
-            {regSuccess && (
-              <div style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid #22c55e', color: '#86efac', padding: '12px', borderRadius: '8px', marginBottom: '24px', textAlign: 'center', fontSize: '0.9rem' }}>
-                {regSuccess}
-              </div>
-            )}
-            
-            <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Email Address</label>
-                <input 
-                  type="email" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} placeholder="user@ura.go.ug" required autoComplete="off"
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Department</label>
-                <input 
-                  type="text" value={regDepartment} onChange={(e) => setRegDepartment(e.target.value)} placeholder="e.g. Analytics" required autoComplete="off"
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Password</label>
-                <input 
-                  type="password" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} placeholder="••••••••" required autoComplete="new-password"
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Confirm Password</label>
-                <input 
-                  type="password" value={regConfirm} onChange={(e) => setRegConfirm(e.target.value)} placeholder="••••••••" required autoComplete="new-password"
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
-                />
-              </div>
-              <button type="submit" className="btn-primary" style={{ marginTop: '12px', padding: '14px', width: '100%', fontWeight: 600 }}>
-                Request Access
-              </button>
-            </form>
-          </div>
-        )}
+        <div style={{ textAlign: 'center', marginTop: 'var(--space-5)', color: 'var(--text-tertiary)', fontSize: '0.875rem' }}>
+          &copy; {new Date().getFullYear()} Uganda Revenue Authority. All rights reserved.
+        </div>
       </div>
     </main>
   );

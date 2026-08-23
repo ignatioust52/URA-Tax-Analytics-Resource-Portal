@@ -1,6 +1,9 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
+import { Card, CardHeader } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -25,55 +28,70 @@ export default function Home() {
 
   if (loading) {
     return (
-      <main className="main-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', paddingTop: '10vh' }}>
-        <div className="glass-panel" style={{ maxWidth: '800px', width: '100%', padding: '40px', textAlign: 'center' }}>
-          <p style={{ color: 'var(--text-secondary)' }}>Loading session...</p>
-        </div>
+      <main className="main-container" style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ color: 'var(--text-secondary)' }}>Authenticating...</p>
       </main>
     );
   }
 
   return (
-    <main className="main-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', paddingTop: '10vh' }}>
-      <div className="glass-panel" style={{ maxWidth: '800px', width: '100%', padding: '40px' }}>
-        <h1 className="header-title" style={{ fontSize: '2.5rem', textAlign: 'center', marginBottom: '8px' }}>URA Revenue Dashboard</h1>
-        <p className="header-subtitle" style={{ textAlign: 'center', marginBottom: '32px' }}>
-          DEVELOPING UGANDA TOGETHER
-        </p>
+    <main className="main-container">
+      <div style={{ maxWidth: '800px', margin: '0 auto', marginTop: '10vh' }}>
         
-        {user ? (
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <p style={{ fontSize: '1.1rem', marginBottom: '8px' }}>Welcome back, <strong>{user.email}</strong></p>
-            <div style={{ display: 'inline-block', padding: '4px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: '16px', fontSize: '0.9rem', color: 'var(--brand-yellow)' }}>
-              Role: {user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}
+        <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
+          <h1 className="page-title">URA GO PORTAL</h1>
+          <p className="page-subtitle">DEVELOPING UGANDA TOGETHER</p>
+        </div>
+        
+        <Card>
+          {user ? (
+            <div style={{ textAlign: 'center', padding: 'var(--space-4) 0' }}>
+              <h2 style={{ fontSize: '1.5rem', marginBottom: 'var(--space-2)' }}>Welcome, {user.email}</h2>
+              <Badge variant="info">
+                Role: {user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}
+              </Badge>
+              
+              <div style={{ 
+                marginTop: 'var(--space-5)', 
+                padding: 'var(--space-4)', 
+                background: 'var(--surface-hover)', 
+                borderRadius: 'var(--radius-lg)', 
+                border: '1px dashed var(--border-medium)' 
+              }}>
+                <p style={{ color: 'var(--text-secondary)', margin: 0, fontWeight: 500 }}>
+                  Please use the navigation bar above to access your tools and dashboards.
+                </p>
+              </div>
+              
+              <Button onClick={handleLogout} variant="ghost" style={{ marginTop: 'var(--space-5)' }}>
+                Sign Out
+              </Button>
             </div>
-            
-            <div style={{ marginTop: '32px', padding: '24px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '0' }}>
-                Please use the navigation bar above to access your tools and dashboards.
+          ) : (
+            <div style={{ textAlign: 'center', padding: 'var(--space-4) 0' }}>
+              <p style={{ marginBottom: 'var(--space-5)', color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
+                Sign in to access URA tax analytics, reports, and enterprise resources.
               </p>
+              
+              <Button as="a" href="/login" size="lg">
+                Proceed to Login
+              </Button>
             </div>
-            
-            <button onClick={handleLogout} className="btn-primary" style={{ marginTop: '32px', background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--text-secondary)' }}>
-              Sign Out
-            </button>
-          </div>
-        ) : (
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ marginBottom: '24px', color: 'var(--text-secondary)' }}>
-              Sign in to access URA tax analytics, reports, and resources.
-            </p>
-            
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-              <a href="/login" className="btn-primary" style={{ display: 'inline-block', textDecoration: 'none', padding: '12px 24px' }}>
-                Sign In
-              </a>
-            </div>
-          </div>
-        )}
+          )}
+        </Card>
 
-        <div style={{ marginTop: '40px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-          Backend Status: <strong>{backendStatus}</strong>
+        <div style={{ 
+          marginTop: 'var(--space-6)', 
+          paddingTop: 'var(--space-4)', 
+          borderTop: '1px solid var(--border-light)', 
+          textAlign: 'center', 
+          fontSize: '0.875rem', 
+          color: 'var(--text-tertiary)' 
+        }}>
+          System Status: <span style={{ 
+            color: backendStatus === 'Running' ? 'var(--success)' : 'var(--error)', 
+            fontWeight: 600 
+          }}>{backendStatus}</span>
         </div>
       </div>
     </main>

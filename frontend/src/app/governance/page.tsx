@@ -2,6 +2,9 @@
 import { useEffect, useState } from 'react';
 import { AdminGuard } from '../../components/AdminGuard';
 import { apiFetch } from '../../lib/api';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { Badge } from '../../components/ui/Badge';
 
 export default function GovernancePage() {
   const [data, setData] = useState<any[]>([]);
@@ -44,10 +47,10 @@ export default function GovernancePage() {
     return (
       <AdminGuard>
         <main className="main-container">
-          <div className="glass-panel" style={{ color: '#ef4444', textAlign: 'center' }}>
+          <Card style={{ color: 'var(--error)', textAlign: 'center' }}>
             <h2>Access Denied</h2>
             <p>You must be an administrator to view this page.</p>
-          </div>
+          </Card>
         </main>
       </AdminGuard>
     );
@@ -56,43 +59,56 @@ export default function GovernancePage() {
   return (
     <AdminGuard>
       <main className="main-container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <div className="flex-between" style={{ marginBottom: 'var(--space-5)' }}>
           <div>
-            <h1 className="header-title" style={{ fontSize: '2rem' }}>Governance Queue</h1>
-            <p className="header-subtitle" style={{ marginBottom: 0 }}>Review and approve resources pending publication</p>
+            <h1 className="page-title" style={{ margin: 0 }}>Governance Queue</h1>
+            <p className="page-subtitle" style={{ margin: 'var(--space-1) 0 0 0' }}>Review and approve resources pending publication</p>
           </div>
-          <a href="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>← Back</a>
+          <Button as="a" href="/" variant="secondary">
+            ← Back to Dashboard
+          </Button>
         </div>
 
         {loading ? (
-          <div className="glass-panel" style={{ textAlign: 'center' }}>Loading Queue...</div>
+          <Card style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Loading Queue...</Card>
         ) : data.length === 0 ? (
-          <div className="glass-panel" style={{ textAlign: 'center', padding: '40px' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '16px' }}>🎉</div>
-            <h3 style={{ margin: 0 }}>No resources pending approval.</h3>
-          </div>
+          <Card style={{ textAlign: 'center', padding: 'var(--space-6)' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: 'var(--space-3)' }}>🎉</div>
+            <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>No resources pending approval.</h3>
+            <p style={{ color: 'var(--text-secondary)', marginTop: 'var(--space-2)' }}>The governance queue is clear.</p>
+          </Card>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <p><strong>{data.length} resource(s) awaiting your review.</strong></p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            <p style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>
+              <strong>{data.length}</strong> resource(s) awaiting your review.
+            </p>
             {data.map((item, idx) => (
-              <div key={idx} className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Card key={idx} className="flex-between" style={{ alignItems: 'flex-start' }}>
                 <div>
-                  <h3 style={{ margin: '0 0 8px 0', color: 'var(--text-primary)' }}>{item.business_name}</h3>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '4px' }}>
-                    <strong>Category:</strong> {item.category} | <strong>Department:</strong> {item.department}
+                  <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
+                    <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.25rem' }}>{item.business_name}</h3>
+                    <Badge variant="warning">Pending Review</Badge>
                   </div>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '4px' }}>
+                  
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: 'var(--space-1)' }}>
+                    <strong>Category:</strong> {item.category} <span style={{ margin: '0 8px', color: 'var(--border-medium)' }}>|</span> <strong>Department:</strong> {item.department}
+                  </div>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: 'var(--space-1)' }}>
                     <strong>Description:</strong> {item.description}
                   </div>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                     <strong>Requested by:</strong> {item.added_by}
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
-                  <button onClick={() => handleApproval(item.id, 'Approved')} className="btn-primary" style={{ padding: '8px 16px', background: '#22c55e' }}>Approve</button>
-                  <button onClick={() => handleApproval(item.id, 'Rejected')} className="btn-primary" style={{ padding: '8px 16px', background: 'transparent', border: '1px solid #ef4444', color: '#ef4444' }}>Reject</button>
+                <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', minWidth: '120px' }}>
+                  <Button onClick={() => handleApproval(item.id, 'Approved')} style={{ background: 'var(--success)', borderColor: 'var(--success)' }}>
+                    Approve
+                  </Button>
+                  <Button variant="danger" onClick={() => handleApproval(item.id, 'Rejected')}>
+                    Reject
+                  </Button>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         )}

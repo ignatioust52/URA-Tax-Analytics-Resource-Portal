@@ -3,6 +3,10 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { ResourceFormModal } from '../../components/ResourceFormModal';
 import { apiFetch } from '../../lib/api';
+import { Card, CardHeader } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { Badge } from '../../components/ui/Badge';
+import { Input } from '../../components/ui/Input';
 
 type Resource = {
   id: number;
@@ -52,17 +56,13 @@ export default function ResourcesPage() {
     setChatHistory(prev => [...prev, { role: 'user', content: userMsg }]);
     
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/chat`, {
+      const data = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ message: userMsg })
       });
-      if (res.ok) {
-        const data = await res.json();
-        setChatHistory(prev => [...prev, { role: 'assistant', content: data.reply }]);
-        setAiFilters(data.filters);
-      }
+      setChatHistory(prev => [...prev, { role: 'assistant', content: data.reply }]);
+      setAiFilters(data.filters);
     } catch (err) {
       console.error(err);
     }
@@ -83,7 +83,6 @@ export default function ResourcesPage() {
   };
 
   useEffect(() => {
-    // Fetch all initial data concurrently
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     Promise.all([
       apiFetch(`${baseUrl}/api/resources`).catch(() => []),
@@ -119,7 +118,6 @@ export default function ResourcesPage() {
 
   const handleResourceClick = (res: Resource) => {
     setSelectedResource(res);
-    // Optionally trigger an API call to record view
   };
 
   const [showModal, setShowModal] = useState(false);
@@ -127,11 +125,12 @@ export default function ResourcesPage() {
 
   const reloadData = () => {
     setLoading(true);
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources/favorites`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources/recent`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements/active`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
+      apiFetch(`${baseUrl}/api/resources`).catch(() => []),
+      apiFetch(`${baseUrl}/api/resources/favorites`).catch(() => []),
+      apiFetch(`${baseUrl}/api/resources/recent`).catch(() => []),
+      apiFetch(`${baseUrl}/api/announcements/active`).catch(() => []),
     ]).then(([resData, favData, recentData, annData]) => {
       setResources(resData || []);
       setFavorites(favData || []);
@@ -144,26 +143,26 @@ export default function ResourcesPage() {
   if (selectedResource) {
     return (
       <main className="main-container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <div className="flex-between" style={{ marginBottom: 'var(--space-4)' }}>
           <div>
-            <h1 className="header-title" style={{ fontSize: '1.75rem', marginBottom: '8px' }}>{selectedResource.business_name}</h1>
-            <p className="header-subtitle" style={{ margin: 0 }}>
+            <h1 className="page-title" style={{ margin: 0, fontSize: '1.75rem' }}>{selectedResource.business_name}</h1>
+            <p className="page-subtitle" style={{ margin: 'var(--space-1) 0 0 0' }}>
               {selectedResource.category || 'General'} • Added {new Date(selectedResource.created_at).toLocaleDateString()}
             </p>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
-            <button className="btn-secondary" onClick={() => {}}>⭐ Favorite</button>
-            <button className="btn-secondary" onClick={() => setSelectedResource(null)}>← Back to grid</button>
+            <Button variant="secondary" onClick={() => {}}>⭐ Favorite</Button>
+            <Button variant="secondary" onClick={() => setSelectedResource(null)}>← Back to grid</Button>
           </div>
         </div>
         
-        <div className="glass-panel" style={{ padding: 0, overflow: 'hidden', height: 'calc(100vh - 200px)' }}>
+        <Card noPadding style={{ height: 'calc(100vh - 200px)' }}>
           {selectedResource.url.includes('youtube') || selectedResource.url.includes('youtu.be') ? (
             <iframe width="100%" height="100%" src={selectedResource.url.replace("watch?v=", "embed/")} frameBorder="0" allowFullScreen></iframe>
           ) : (
             <iframe width="100%" height="100%" src={selectedResource.url} frameBorder="0" allowFullScreen></iframe>
           )}
-        </div>
+        </Card>
       </main>
     );
   }
@@ -171,32 +170,39 @@ export default function ResourcesPage() {
   return (
     <main className="main-container">
       {/* Header and Search/Filter Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '20px' }}>
+      <div className="flex-between" style={{ marginBottom: 'var(--space-5)', flexWrap: 'wrap', gap: '20px' }}>
         <div>
-          <h1 className="header-title" style={{ fontSize: '2rem' }}>Public Resources</h1>
-          <p className="header-subtitle" style={{ marginBottom: 0 }}>Explore URA reports, guides, and documentation</p>
+          <h1 className="page-title" style={{ margin: 0 }}>Public Resources</h1>
+          <p className="page-subtitle" style={{ margin: 'var(--space-1) 0 0 0' }}>Explore URA reports, guides, and documentation</p>
         </div>
         <div style={{ display: 'flex', gap: '12px', flexGrow: 1, maxWidth: '600px', alignItems: 'center' }}>
-          <input 
-            type="text" 
+          <Input 
             placeholder="Search resources..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ flexGrow: 1, padding: '10px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
+            style={{ marginBottom: 0 }}
           />
           <select 
             value={selectedCategory} 
             onChange={(e) => setSelectedCategory(e.target.value)}
-            style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
+            style={{ 
+              padding: '10px 16px', 
+              borderRadius: 'var(--radius-md)', 
+              border: '1px solid var(--border-medium)', 
+              background: 'var(--surface)', 
+              color: 'var(--text-primary)',
+              height: '42px',
+              outline: 'none'
+            }}
           >
             {categories.map(cat => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
           {user && (
-            <button onClick={() => { setEditingResource(null); setShowModal(true); }} className="btn-primary" style={{ padding: '10px 16px', whiteSpace: 'nowrap' }}>
+            <Button onClick={() => { setEditingResource(null); setShowModal(true); }} style={{ whiteSpace: 'nowrap', height: '42px' }}>
               + Add Resource
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -210,17 +216,21 @@ export default function ResourcesPage() {
       )}
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid var(--border)', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-4)', borderBottom: '1px solid var(--border-light)', marginBottom: 'var(--space-4)' }}>
         {['all', 'favorites', 'recent', 'news', 'ai'].map(tab => (
           <button 
             key={tab}
             onClick={() => setActiveTab(tab)}
             style={{
-              background: 'none', border: 'none', padding: '12px 4px', cursor: 'pointer',
-              color: activeTab === tab ? 'white' : 'var(--text-secondary)',
-              borderBottom: activeTab === tab ? '2px solid var(--accent)' : '2px solid transparent',
-              fontWeight: activeTab === tab ? 600 : 400,
-              textTransform: 'capitalize'
+              background: 'none', 
+              border: 'none', 
+              padding: 'var(--space-3) var(--space-1)', 
+              cursor: 'pointer',
+              color: activeTab === tab ? 'var(--ura-blue)' : 'var(--text-secondary)',
+              borderBottom: activeTab === tab ? '2px solid var(--ura-blue)' : '2px solid transparent',
+              fontWeight: activeTab === tab ? 600 : 500,
+              textTransform: 'capitalize',
+              fontSize: '0.95rem'
             }}
           >
             {tab === 'all' ? 'All Resources' : 
@@ -232,113 +242,124 @@ export default function ResourcesPage() {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>Loading...</div>
+        <div style={{ textAlign: 'center', padding: 'var(--space-6)', color: 'var(--text-secondary)' }}>Loading...</div>
       ) : activeTab === 'news' ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
           {announcements.length === 0 ? (
-            <div className="glass-panel" style={{ textAlign: 'center' }}>No active announcements.</div>
+            <Card style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No active announcements.</Card>
           ) : announcements.map(ann => (
-            <div key={ann.id} className="glass-panel">
-              <h3 style={{ marginBottom: '8px' }}>📢 {ann.title}</h3>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+            <Card key={ann.id}>
+              <h3 style={{ marginBottom: 'var(--space-2)' }}>📢 {ann.title}</h3>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)', marginBottom: 'var(--space-4)' }}>
                 Published on {new Date(ann.published_at).toLocaleString()}
               </div>
-              <p>{ann.body}</p>
-            </div>
+              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>{ann.body}</p>
+            </Card>
           ))}
         </div>
       ) : activeTab === 'ai' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px' }}>
-          <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', height: '600px' }}>
-            <h3>URA AI Assistant</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'var(--space-5)' }}>
+          <Card style={{ display: 'flex', flexDirection: 'column', height: '600px' }}>
+            <h3 style={{ marginBottom: 'var(--space-2)' }}>URA AI Assistant</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: 'var(--space-4)' }}>
               Ask me to find specific dashboards, e.g., 'Show VAT collections in Kampala'.
             </p>
-            <div style={{ flexGrow: 1, overflowY: 'auto', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ flexGrow: 1, overflowY: 'auto', marginBottom: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {chatHistory.map((msg, idx) => (
                 <div key={idx} style={{ 
                   alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                  background: msg.role === 'user' ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
-                  padding: '10px 14px', borderRadius: '12px', maxWidth: '85%', fontSize: '0.95rem'
+                  background: msg.role === 'user' ? 'var(--ura-blue)' : 'var(--surface-hover)',
+                  color: msg.role === 'user' ? 'white' : 'var(--text-primary)',
+                  padding: '10px 14px', 
+                  borderRadius: 'var(--radius-lg)', 
+                  maxWidth: '85%', 
+                  fontSize: '0.95rem'
                 }}>
                   {msg.content}
                 </div>
               ))}
             </div>
             <form onSubmit={handleChatSubmit} style={{ display: 'flex', gap: '8px' }}>
-              <input 
-                type="text" 
+              <Input 
                 value={chatInput}
                 onChange={e => setChatInput(e.target.value)}
                 placeholder="Ask for a dashboard..." 
-                style={{ flexGrow: 1, padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
+                fullWidth
+                style={{ marginBottom: 0 }}
               />
-              <button type="submit" className="btn-primary" style={{ padding: '0 16px' }}>Send</button>
+              <Button type="submit">Send</Button>
             </form>
-          </div>
+          </Card>
+          
           <div>
-            <h3 style={{ marginBottom: '16px' }}>AI Recommended Results</h3>
+            <h3 style={{ marginBottom: 'var(--space-4)' }}>AI Recommended Results</h3>
             {aiFilters && getFilteredAiResources().length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 'var(--space-4)' }}>
                 {getFilteredAiResources().map((resource) => (
-                  <div key={resource.id} className="glass-panel" style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+                  <Card key={resource.id} style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div className="flex-between" style={{ marginBottom: 'var(--space-2)' }}>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--ura-blue)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
                         {resource.category || 'General'}
                       </div>
                     </div>
-                    <h3 style={{ fontSize: '1.25rem', marginBottom: '8px', fontWeight: 600 }}>
+                    <h3 style={{ fontSize: '1.125rem', marginBottom: 'var(--space-2)' }}>
                       {resource.page_name || resource.business_name}
                     </h3>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
-                      <button onClick={() => handleResourceClick(resource)} className="btn-primary" style={{ padding: '6px 16px', fontSize: '0.9rem' }}>
+                    <div className="flex-between" style={{ marginTop: 'auto', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--border-light)' }}>
+                      <Button onClick={() => handleResourceClick(resource)} size="sm">
                         View Resource
-                      </button>
+                      </Button>
                     </div>
-                  </div>
+                  </Card>
                 ))}
               </div>
             ) : aiFilters ? (
-              <div className="glass-panel" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No dashboards found matching your criteria.</div>
+              <Card style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No dashboards found matching your criteria.</Card>
             ) : (
-              <div className="glass-panel" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Start chatting to see recommended dashboards.</div>
+              <Card style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Start chatting to see recommended dashboards.</Card>
             )}
           </div>
         </div>
       ) : getDisplayedResources().length === 0 ? (
-        <div className="glass-panel" style={{ textAlign: 'center' }}>No resources match your filters.</div>
+        <Card style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
+          <div style={{ fontSize: '2rem', marginBottom: 'var(--space-2)' }}>📊</div>
+          <h3>No resources found</h3>
+          <p>Try adjusting your search or filters.</p>
+        </Card>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 'var(--space-4)' }}>
           {getDisplayedResources().map((resource) => (
-            <div key={resource.id} className="glass-panel" style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <div style={{ fontSize: '0.8rem', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+            <Card key={resource.id} style={{ display: 'flex', flexDirection: 'column' }}>
+              <div className="flex-between" style={{ marginBottom: 'var(--space-2)' }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--ura-blue)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
                   {resource.category || 'General'}
                 </div>
-                <span className="ura-chip ura-chip-green">Available</span>
+                <Badge variant="success">Available</Badge>
               </div>
               
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '8px', fontWeight: 600 }}>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--space-2)' }}>
                 {resource.page_name || resource.business_name}
               </h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '24px', flexGrow: 1, lineHeight: 1.5 }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: 'var(--space-5)', flexGrow: 1, lineHeight: 1.5 }}>
                 {resource.description || 'No description provided.'}
               </p>
               
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>👁 {resource.view_count || 0} views</span>
+              <div className="flex-between" style={{ marginTop: 'auto', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--border-light)' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)', fontWeight: 500 }}>
+                  👁 {resource.view_count || 0} views
+                </span>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {user?.role === 'admin' && (
-                    <button onClick={() => { setEditingResource(resource); setShowModal(true); }} className="btn-secondary" style={{ padding: '6px 16px', fontSize: '0.9rem' }}>
+                    <Button variant="secondary" size="sm" onClick={() => { setEditingResource(resource); setShowModal(true); }}>
                       Edit
-                    </button>
+                    </Button>
                   )}
-                  <button onClick={() => handleResourceClick(resource)} className="btn-primary" style={{ padding: '6px 16px', fontSize: '0.9rem' }}>
+                  <Button size="sm" onClick={() => handleResourceClick(resource)}>
                     View Resource
-                  </button>
+                  </Button>
                 </div>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       )}

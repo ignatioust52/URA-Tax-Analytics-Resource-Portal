@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { AdminGuard } from '../../components/AdminGuard';
 import { apiFetch } from '../../lib/api';
+import { Card, CardHeader } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
 import {
   LineChart,
   Line,
@@ -28,10 +30,10 @@ export default function AnalyticsPage() {
     return (
       <AdminGuard>
         <main className="main-container">
-          <div className="glass-panel" style={{ color: '#ef4444', textAlign: 'center' }}>
-            <h2>Analytics Error</h2>
-            <p>{error}</p>
-          </div>
+          <Card style={{ textAlign: 'center', padding: 'var(--space-6)' }}>
+            <h2 style={{ color: 'var(--error)' }}>Analytics Error</h2>
+            <p style={{ color: 'var(--text-secondary)' }}>{error}</p>
+          </Card>
         </main>
       </AdminGuard>
     );
@@ -40,7 +42,11 @@ export default function AnalyticsPage() {
   if (!data) {
     return (
       <AdminGuard>
-        <main className="main-container"><div className="glass-panel" style={{ textAlign: 'center' }}>Loading Analytics...</div></main>
+        <main className="main-container">
+          <div style={{ textAlign: 'center', padding: 'var(--space-6)', color: 'var(--text-secondary)' }}>
+            Loading Analytics...
+          </div>
+        </main>
       </AdminGuard>
     );
   }
@@ -48,59 +54,97 @@ export default function AnalyticsPage() {
   return (
     <AdminGuard>
       <main className="main-container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <div className="flex-between" style={{ marginBottom: 'var(--space-5)' }}>
           <div>
-            <h1 className="header-title" style={{ fontSize: '2rem' }}>Admin Analytics</h1>
-            <p className="header-subtitle" style={{ marginBottom: 0 }}>Resource-view activity across the catalog</p>
+            <h1 className="page-title" style={{ margin: 0 }}>Analytics Dashboard</h1>
+            <p className="page-subtitle" style={{ margin: 'var(--space-1) 0 0 0' }}>Resource views and usage activity</p>
           </div>
-          <a href="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>← Back</a>
+          <Button as="a" href="/" variant="secondary">
+            ← Back to Dashboard
+          </Button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
-          <div className="glass-panel" style={{ textAlign: 'center' }}>
-            <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Total Recorded Views</div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{data.kpis.total_views || 0}</div>
-          </div>
-          <div className="glass-panel" style={{ textAlign: 'center' }}>
-            <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Unique Viewers</div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{data.kpis.unique_users || 0}</div>
-          </div>
-          <div className="glass-panel" style={{ textAlign: 'center' }}>
-            <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Resources Viewed</div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{data.kpis.unique_resources || 0}</div>
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-5)' }}>
+          <Card style={{ textAlign: 'center', padding: 'var(--space-5)' }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Recorded Views</div>
+            <div style={{ fontSize: '3rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: 'var(--space-2)' }}>{data.kpis.total_views || 0}</div>
+          </Card>
+          
+          <Card style={{ textAlign: 'center', padding: 'var(--space-5)' }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Unique Viewers</div>
+            <div style={{ fontSize: '3rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: 'var(--space-2)' }}>{data.kpis.unique_users || 0}</div>
+          </Card>
+          
+          <Card style={{ textAlign: 'center', padding: 'var(--space-5)' }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Resources Viewed</div>
+            <div style={{ fontSize: '3rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: 'var(--space-2)' }}>{data.kpis.unique_resources || 0}</div>
+          </Card>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-          <div className="glass-panel">
-            <h3 style={{ marginBottom: '24px' }}>Daily Views Trend</h3>
-            <div style={{ height: '300px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: 'var(--space-4)' }}>
+          <Card>
+            <CardHeader title="Daily Views Trend" />
+            <div style={{ height: '320px', width: '100%', marginTop: 'var(--space-4)' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data.daily_views}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="date" stroke="var(--text-secondary)" />
-                  <YAxis stroke="var(--text-secondary)" />
-                  <Tooltip contentStyle={{ background: 'var(--surface)', border: 'none', borderRadius: '8px' }} />
-                  <Line type="monotone" dataKey="views" stroke="#60a5fa" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" vertical={false} />
+                  <XAxis 
+                    dataKey="date" 
+                    stroke="var(--text-tertiary)" 
+                    tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} 
+                    axisLine={false} 
+                    tickLine={false} 
+                    dy={10} 
+                  />
+                  <YAxis 
+                    stroke="var(--text-tertiary)" 
+                    tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} 
+                    axisLine={false} 
+                    tickLine={false} 
+                    dx={-10} 
+                  />
+                  <Tooltip 
+                    contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }} 
+                    itemStyle={{ color: 'var(--ura-blue)' }} 
+                  />
+                  <Line type="monotone" dataKey="views" stroke="var(--ura-blue)" strokeWidth={3} dot={{ r: 4, fill: 'var(--ura-blue)', strokeWidth: 2, stroke: 'var(--surface)' }} activeDot={{ r: 6 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </Card>
           
-          <div className="glass-panel">
-            <h3 style={{ marginBottom: '24px' }}>Top 10 Most Popular</h3>
-            <div style={{ height: '300px' }}>
+          <Card>
+            <CardHeader title="Top 10 Most Popular Resources" />
+            <div style={{ height: '320px', width: '100%', marginTop: 'var(--space-4)' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.popular}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="resource_id" stroke="var(--text-secondary)" tick={{fontSize: 10}} angle={-45} textAnchor="end" height={60} />
-                  <YAxis stroke="var(--text-secondary)" />
-                  <Tooltip contentStyle={{ background: 'var(--surface)', border: 'none', borderRadius: '8px' }} />
-                  <Bar dataKey="views" fill="#a78bfa" radius={[4, 4, 0, 0]} />
+                <BarChart data={data.popular} margin={{ bottom: 40 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" vertical={false} />
+                  <XAxis 
+                    dataKey="resource_id" 
+                    stroke="var(--text-tertiary)" 
+                    tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} 
+                    angle={-45} 
+                    textAnchor="end" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    dy={10} 
+                  />
+                  <YAxis 
+                    stroke="var(--text-tertiary)" 
+                    tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} 
+                    axisLine={false} 
+                    tickLine={false} 
+                    dx={-10} 
+                  />
+                  <Tooltip 
+                    contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }} 
+                    itemStyle={{ color: 'var(--ura-yellow)', fontWeight: 600 }} 
+                  />
+                  <Bar dataKey="views" fill="var(--ura-blue)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </Card>
         </div>
       </main>
     </AdminGuard>
