@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../lib/api';
+import { Card } from './ui/Card';
+import { Button } from './ui/Button';
+import { Input } from './ui/Input';
 
 export function ResourceFormModal({ 
   onClose, 
@@ -67,34 +70,60 @@ export function ResourceFormModal({
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '600px', padding: '32px', maxHeight: '90vh', overflowY: 'auto' }}>
-        <h2 style={{ marginBottom: '24px' }}>{isEditing ? 'Edit Resource' : 'Add Resource'}</h2>
-        {error && <div style={{ color: '#ef4444', marginBottom: '16px' }}>{error}</div>}
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+      <Card style={{ width: '100%', maxWidth: '600px', padding: 'var(--space-5)', boxShadow: 'var(--shadow-lg)', maxHeight: '90vh', overflowY: 'auto' }}>
+        <h2 style={{ fontSize: '1.5rem', marginBottom: 'var(--space-4)' }}>{isEditing ? 'Edit Resource' : 'Add Resource'}</h2>
+        {error && <div style={{ color: 'var(--error)', marginBottom: 'var(--space-3)' }}>{error}</div>}
         
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px' }}>Page Name</label>
-            <input required type="text" value={formData.page_name} onChange={e => setFormData({...formData, page_name: e.target.value})} style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.3)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }} />
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
+          <Input 
+            label="Page Name"
+            type="text" 
+            required 
+            value={formData.page_name} 
+            onChange={e => setFormData({...formData, page_name: e.target.value})} 
+          />
+          <Input 
+            label="Business Name"
+            type="text" 
+            required 
+            value={formData.business_name} 
+            onChange={e => setFormData({...formData, business_name: e.target.value})} 
+          />
+          <div style={{ marginBottom: 'var(--space-3)' }}>
+            <label>Description</label>
+            <textarea 
+              value={formData.description} 
+              onChange={e => setFormData({...formData, description: e.target.value})} 
+              rows={3}
+              style={{ 
+                width: '100%', 
+                padding: '10px 12px', 
+                borderRadius: 'var(--radius-md)', 
+                border: '1px solid var(--border-medium)', 
+                background: 'var(--surface)', 
+                color: 'var(--text-primary)',
+                fontSize: '0.95rem',
+                outline: 'none',
+                resize: 'vertical'
+              }} 
+            />
           </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px' }}>Business Name</label>
-            <input required type="text" value={formData.business_name} onChange={e => setFormData({...formData, business_name: e.target.value})} style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.3)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }} />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px' }}>Description</label>
-            <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.3)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }} />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px' }}>Category</label>
-            <input type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.3)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }} />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px' }}>URL</label>
-            <input required type="url" value={formData.url} onChange={e => setFormData({...formData, url: e.target.value})} style={{ width: '100%', padding: '10px', background: 'rgba(0,0,0,0.3)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }} />
-          </div>
+          <Input 
+            label="Category"
+            type="text" 
+            value={formData.category} 
+            onChange={e => setFormData({...formData, category: e.target.value})} 
+          />
+          <Input 
+            label="URL"
+            type="url" 
+            required 
+            value={formData.url} 
+            onChange={e => setFormData({...formData, url: e.target.value})} 
+          />
           
-          <div>
+          <div style={{ marginBottom: 'var(--space-3)' }}>
             <label style={{ display: 'block', marginBottom: '8px' }}>Visibility</label>
             <div style={{ display: 'flex', gap: '16px' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -113,9 +142,9 @@ export function ResourceFormModal({
           </div>
 
           {formData.visibility === 'SELECTED_DEPARTMENTS' && (
-            <div>
+            <div style={{ marginBottom: 'var(--space-3)' }}>
               <label style={{ display: 'block', marginBottom: '8px' }}>Select Departments</label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '150px', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.1)', padding: '8px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '150px', overflowY: 'auto', border: '1px solid var(--border-medium)', padding: '8px', borderRadius: 'var(--radius-md)' }}>
                 {departments.map(d => (
                   <label key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <input type="checkbox" checked={formData.dept_id_list.includes(d.id)} onChange={() => toggleDept(d.id)} />
@@ -126,12 +155,12 @@ export function ResourceFormModal({
             </div>
           )}
           
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
-            <button type="button" onClick={onClose} className="btn-secondary">Cancel</button>
-            <button type="submit" className="btn-primary">Save</button>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: 'var(--space-5)' }}>
+            <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+            <Button type="submit">Save Resource</Button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }
