@@ -24,9 +24,9 @@ def login(login_req: LoginRequest, response: Response):
     from core.db_departments import user_department_access_get_details
     departments = user_department_access_get_details(user["id"])
     
-    if len(departments) == 1:
-        # User has exactly one department, auto-select it
-        active_department_id = departments[0]["id"]
+    if len(departments) <= 1:
+        # User has exactly one department or zero, auto-select it (or None)
+        active_department_id = departments[0]["id"] if len(departments) == 1 else None
         session_token = create_user_session(user["id"], active_department_id)
         
         response.set_cookie(
@@ -47,7 +47,7 @@ def login(login_req: LoginRequest, response: Response):
             }
         }
     else:
-        # User has 0 or >1 departments, issue a temporary pre-auth token (without active_department_id)
+        # User has >1 departments, issue a temporary pre-auth token (without active_department_id)
         session_token = create_user_session(user["id"], None)
         
         response.set_cookie(
