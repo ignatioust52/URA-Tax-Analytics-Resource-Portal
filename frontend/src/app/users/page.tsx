@@ -11,12 +11,12 @@ export default function UsersPage() {
 
   const fetchUsers = () => {
     setLoading(true);
-    fetch('http://localhost:8000/api/users', { credentials: 'include' })
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users`, { credentials: 'include' })
       .then(res => res.ok ? res.json() : [])
       .then(d => setData(d))
       .catch(err => setError(err.message));
       
-    fetch('http://localhost:8000/api/users/pending', { credentials: 'include' })
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/pending`, { credentials: 'include' })
       .then(res => res.ok ? res.json() : [])
       .then(d => setPendingUsers(d))
       .finally(() => setLoading(false));
@@ -28,7 +28,7 @@ export default function UsersPage() {
 
   const handleStatusUpdate = async (id: number, isActive: boolean, status: string) => {
     try {
-      const res = await fetch('http://localhost:8000/api/users/status', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/status`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -45,7 +45,7 @@ export default function UsersPage() {
     // Basic approval with 'viewer' role and no specific departments for now
     // A fully functional dashboard would have a form here to select roles and departments
     try {
-      const res = await fetch('http://localhost:8000/api/users/approve', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -60,7 +60,7 @@ export default function UsersPage() {
 
   const handleReject = async (id: number) => {
     try {
-      const res = await fetch('http://localhost:8000/api/users/reject', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -79,7 +79,7 @@ export default function UsersPage() {
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:8000/api/users/create', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

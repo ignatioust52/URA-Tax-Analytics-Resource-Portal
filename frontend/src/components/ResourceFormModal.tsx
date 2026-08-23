@@ -26,8 +26,8 @@ export function ResourceFormModal({
     setError('');
     
     const endpoint = isEditing 
-      ? `http://localhost:8000/api/resources/${initialData.id}` 
-      : `http://localhost:8000/api/resources`;
+      ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources/${initialData.id}` 
+      : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources`;
       
     const method = isEditing ? 'PUT' : 'POST';
 

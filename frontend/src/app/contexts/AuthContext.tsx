@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check if session exists on load
-    fetch('http://localhost:8000/api/auth/me', {credentials: 'include'})
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/me`, {credentials: 'include'})
       .then(res => {
         if (!res.ok) throw new Error('Not authenticated');
         return res.json();
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = (userData: User) => setUser(userData);
   
   const logout = () => {
-    fetch('http://localhost:8000/api/auth/logout', { method: 'POST', credentials: 'include' })
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/logout`, { method: 'POST', credentials: 'include' })
       .finally(() => {
         setUser(null);
         window.location.href = '/login';

@@ -51,7 +51,7 @@ export default function ResourcesPage() {
     setChatHistory(prev => [...prev, { role: 'user', content: userMsg }]);
     
     try {
-      const res = await fetch('http://localhost:8000/api/chat', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -84,10 +84,10 @@ export default function ResourcesPage() {
   useEffect(() => {
     // Fetch all initial data concurrently
     Promise.all([
-      fetch('http://localhost:8000/api/resources', { credentials: 'include' }).then(r => r.ok ? r.json() : []),
-      fetch('http://localhost:8000/api/resources/favorites', { credentials: 'include' }).then(r => r.ok ? r.json() : []),
-      fetch('http://localhost:8000/api/resources/recent', { credentials: 'include' }).then(r => r.ok ? r.json() : []),
-      fetch('http://localhost:8000/api/announcements/active', { credentials: 'include' }).then(r => r.ok ? r.json() : []),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources/favorites`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources/recent`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements/active`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
     ]).then(([resData, favData, recentData, annData]) => {
       setResources(resData || []);
       setFavorites(favData || []);
@@ -126,10 +126,10 @@ export default function ResourcesPage() {
   const reloadData = () => {
     setLoading(true);
     Promise.all([
-      fetch('http://localhost:8000/api/resources', { credentials: 'include' }).then(r => r.ok ? r.json() : []),
-      fetch('http://localhost:8000/api/resources/favorites', { credentials: 'include' }).then(r => r.ok ? r.json() : []),
-      fetch('http://localhost:8000/api/resources/recent', { credentials: 'include' }).then(r => r.ok ? r.json() : []),
-      fetch('http://localhost:8000/api/announcements/active', { credentials: 'include' }).then(r => r.ok ? r.json() : []),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources/favorites`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources/recent`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements/active`, { credentials: 'include' }).then(r => r.ok ? r.json() : []),
     ]).then(([resData, favData, recentData, annData]) => {
       setResources(resData || []);
       setFavorites(favData || []);

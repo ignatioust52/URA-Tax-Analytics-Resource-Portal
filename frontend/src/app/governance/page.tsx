@@ -9,7 +9,7 @@ export default function GovernancePage() {
 
   const fetchPending = () => {
     setLoading(true);
-    fetch('http://localhost:8000/api/governance/pending', {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/governance/pending`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -35,7 +35,7 @@ export default function GovernancePage() {
 
   const handleApproval = async (id: number, status: 'Approved' | 'Rejected') => {
     try {
-      const res = await fetch('http://localhost:8000/api/governance/approve', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/governance/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

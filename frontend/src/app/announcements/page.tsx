@@ -44,7 +44,7 @@ export default function AnnouncementsPage() {
   const fetchAnnouncements = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/announcements', { credentials: 'include' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements`, { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setAnnouncements(data || []);
@@ -87,8 +87,8 @@ export default function AnnouncementsPage() {
     
     try {
       const url = editingAnn 
-        ? `http://localhost:8000/api/announcements/${editingAnn.announcement_id}`
-        : `http://localhost:8000/api/announcements`;
+        ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements/${editingAnn.announcement_id}`
+        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements`;
         
       const res = await fetch(url, {
         method: editingAnn ? 'PUT' : 'POST',
@@ -109,7 +109,7 @@ export default function AnnouncementsPage() {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this announcement?")) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/announcements/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/announcements/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
