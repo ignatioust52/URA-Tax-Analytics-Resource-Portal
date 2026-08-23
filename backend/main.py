@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
 
 # Load environment variables (e.g. PGHOST, PGPASSWORD) before importing API modules
 load_dotenv()
@@ -67,6 +69,10 @@ app.include_router(governance_router, prefix="/api/governance", tags=["Governanc
 app.include_router(users_router, prefix="/api/users", tags=["Users"])
 app.include_router(chat_router, prefix="/api/chat", tags=["Chatbot"])
 app.include_router(announcements_router, prefix="/api/announcements", tags=["Announcements"])
+
+@app.on_event("startup")
+async def startup():
+    FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
 
 @app.get("/api/health")
 def health_check():

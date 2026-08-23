@@ -8,6 +8,7 @@ from core.db_resources import (
 )
 from backend.api.deps import require_session, require_admin, get_session_or_none
 from fastapi import Request
+from fastapi_cache.decorator import cache
 
 router = APIRouter()
 
@@ -89,6 +90,7 @@ def filter_resources_by_rbac(records, session):
     return filtered
 
 @router.get("/favorites")
+@cache(expire=60)
 def get_favorites(request: Request):
     session = require_session(request)
     fav_ids = set(resources_get_favorites(session["id"]))
@@ -102,6 +104,7 @@ def get_favorites(request: Request):
     return clean_records(fav_records)
 
 @router.get("/recent")
+@cache(expire=60)
 def get_recent(request: Request):
     session = require_session(request)
     recent_records_ids = resources_get_recent(session["id"])
@@ -122,6 +125,7 @@ def get_recent(request: Request):
     return clean_records(recent_records)
 
 @router.get("/")
+@cache(expire=60)
 def get_public_resources(request: Request):
     session = require_session(request)
     try:

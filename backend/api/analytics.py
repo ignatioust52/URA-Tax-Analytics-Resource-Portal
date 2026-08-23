@@ -5,6 +5,7 @@ from core.db_audit import get_audit_log
 from core.db_resources import resources_get_all
 from backend.api.resources import clean_records
 from backend.api.deps import require_admin
+from fastapi_cache.decorator import cache
 
 router = APIRouter()
 
@@ -25,6 +26,7 @@ def serialize_df(df):
     return clean
 
 @router.get("/")
+@cache(expire=60)
 def get_analytics(request: Request):
     require_admin(request)
     
