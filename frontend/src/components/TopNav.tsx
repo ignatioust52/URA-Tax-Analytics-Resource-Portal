@@ -27,15 +27,15 @@ export function TopNav() {
   return (
     <div style={{ width: '100%' }}>
       {/* Top Header */}
-      <div className="top-nav-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', background: '#243F8D', color: 'white' }}>
+      <div className="top-nav-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: '#243F8D', color: 'white', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '36px', height: '36px', background: 'gold', borderRadius: '50%' }}></div> {/* Placeholder logo */}
+          <img src="/logo.png" alt="URA Logo" style={{ height: '40px', width: 'auto' }} />
           <div className="top-nav-brand-text" style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '1.2rem', fontWeight: 700 }}>Uganda Revenue Authority</span>
-            <span style={{ fontSize: '0.75rem', letterSpacing: '0.05em', color: '#CBD5E1' }}>DEVELOPING UGANDA TOGETHER · REVENUE DASHBOARD</span>
+            <span style={{ fontSize: 'clamp(1rem, 4vw, 1.2rem)', fontWeight: 700 }}>Uganda Revenue Authority</span>
+            <span style={{ fontSize: 'clamp(0.6rem, 2vw, 0.75rem)', letterSpacing: '0.05em', color: '#CBD5E1' }}>DEVELOPING UGANDA TOGETHER · REVENUE DASHBOARD</span>
           </div>
         </div>
-        <div>
+        <div style={{ marginLeft: 'auto' }}>
           <span className="ura-live-badge" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.1)', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.85rem' }}>
             <span className="ura-live-dot" style={{ width: '8px', height: '8px', background: '#10B981', borderRadius: '50%' }}></span>
             Live report
@@ -47,8 +47,8 @@ export function TopNav() {
       <div className="ura-stripe" style={{ height: '4px', background: 'linear-gradient(to right, #B54834 33%, #FFF200 33%, #FFF200 66%, #1C2430 66%)' }}></div>
 
       {/* Tabs / Auth Strip */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 2rem', background: '#1A2E66', borderBottom: '1px solid #1C2430' }}>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 1rem', background: '#1A2E66', borderBottom: '1px solid #1C2430', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', whiteSpace: 'nowrap', WebkitOverflowScrolling: 'touch', padding: '0.5rem 0' }}>
           {navLinks.map((link) => {
             const isActive = pathname === link.path || (pathname === '/' && link.path === '/resources');
             return (
@@ -56,12 +56,13 @@ export function TopNav() {
                 key={link.path} 
                 href={link.path}
                 style={{
-                  padding: '1rem',
+                  padding: '0.5rem 1rem',
                   color: 'white',
                   textDecoration: 'none',
                   fontWeight: 600,
                   borderBottom: isActive ? '3px solid #FFF200' : '3px solid transparent',
-                  opacity: isActive ? 1 : 0.8
+                  opacity: isActive ? 1 : 0.8,
+                  fontSize: 'clamp(0.85rem, 2vw, 1rem)'
                 }}
               >
                 {link.name}
@@ -70,24 +71,20 @@ export function TopNav() {
           })}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', paddingBottom: '0.5rem' }}>
           {!loading && user ? (
             <>
-              <div style={{ color: 'white', fontSize: '0.9rem', textAlign: 'right' }}>
+              <div style={{ color: 'white', fontSize: '0.9rem', textAlign: 'right', display: 'none', '@media (min-width: 768px)': { display: 'block' } } as any}>
                 <div>{user.email}</div>
                 <div style={{ color: '#CBD5E1', fontSize: '0.8rem' }}>{user.role} • {user.department || 'All'}</div>
               </div>
-              <button onClick={logout} className="btn-secondary" style={{ padding: '0.5rem 1rem', background: 'transparent', border: '1px solid white', color: 'white', borderRadius: '4px', cursor: 'pointer' }}>
+              <button onClick={logout} className="btn-secondary" style={{ padding: '0.5rem 1rem', background: 'transparent', border: '1px solid white', color: 'white', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
                 Log out
               </button>
             </>
           ) : !loading && !user ? (
             <>
-              <div style={{ color: 'white', fontSize: '0.9rem', textAlign: 'right' }}>
-                <div>Public Visitor</div>
-                <div style={{ color: '#CBD5E1', fontSize: '0.8rem' }}>Unauthenticated</div>
-              </div>
-              <Link href="/login" className="btn-primary" style={{ padding: '0.5rem 1rem', background: '#FFF200', color: '#1C2430', border: 'none', borderRadius: '4px', textDecoration: 'none', fontWeight: 600 }}>
+              <Link href="/login" className="btn-primary" style={{ padding: '0.5rem 1rem', background: '#FFF200', color: '#1C2430', border: 'none', borderRadius: '4px', textDecoration: 'none', fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
                 Log In
               </Link>
             </>

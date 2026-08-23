@@ -10,3 +10,4 @@ anthropic==0.120.2
 fastapi
 uvicorn
 fastapi-cache2
+jinja2
