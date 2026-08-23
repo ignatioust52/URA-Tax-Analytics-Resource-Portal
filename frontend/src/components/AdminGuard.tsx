@@ -16,11 +16,13 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
 
+  const isAdmin = user && user.role && (user.role.includes('admin') || user.role === 'manager');
+
   useEffect(() => {
-    if (!loading && (!user || user.role !== 'admin')) {
+    if (!loading && !isAdmin) {
       router.replace('/');
     }
-  }, [user, loading, router]);
+  }, [user, loading, isAdmin, router]);
 
   if (loading) {
     return (
@@ -33,7 +35,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user || user.role !== 'admin') {
+  if (!isAdmin) {
     // Will redirect via useEffect — render nothing in the meantime
     return null;
   }
