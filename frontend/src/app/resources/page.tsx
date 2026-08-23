@@ -349,7 +349,7 @@ export default function ResourcesPage() {
                   👁 {resource.view_count || 0} views
                 </span>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  {user?.role === 'admin' && (
+                  {user?.role && (user.role.includes('admin') || user.role === 'manager') && (
                     <Button variant="secondary" size="sm" onClick={() => { setEditingResource(resource); setShowModal(true); }}>
                       Edit
                     </Button>
