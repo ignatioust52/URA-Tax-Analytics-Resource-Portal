@@ -170,6 +170,8 @@ def register(req: RegisterRequest):
     from core.db_users import users_register
     try:
         users_register(req.email.lower().strip(), req.password, req.department)
+        from email_utils import notify_registration_received
+        notify_registration_received(req.email.lower().strip())
         return {"success": True, "message": "Account created — awaiting admin approval."}
     except Exception as e:
         error_msg = str(e)

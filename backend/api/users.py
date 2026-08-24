@@ -43,9 +43,16 @@ class ApproveRequest(BaseModel):
 @router.post("/approve")
 def approve_user(req: ApproveRequest, request: Request):
     require_admin(request)
-    from core.db_users import users_approve
+    from core.db_users import users_approve, _fetch_one_dict
+    from core.db_departments import user_department_access_get_details
+    from email_utils import notify_account_approved
     try:
         users_approve(req.user_id, req.role, req.department_ids)
+        user = _fetch_one_dict("SELECT email FROM app_users WHERE id = %s", (req.user_id,))
+        if user:
+            dept_details = user_department_access_get_details(req.user_id)
+            dept_names = [d["name"] for d in dept_details]
+            notify_account_approved(user["email"], req.role, dept_names)
         return {"success": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -56,9 +63,13 @@ class RejectRequest(BaseModel):
 @router.post("/reject")
 def reject_user(req: RejectRequest, request: Request):
     require_admin(request)
-    from core.db_users import users_reject
+    from core.db_users import users_reject, _fetch_one_dict
+    from email_utils import notify_account_rejected
     try:
+        user = _fetch_one_dict("SELECT email FROM app_users WHERE id = %s", (req.user_id,))
         users_reject(req.user_id)
+        if user:
+            notify_account_rejected(user["email"])
         return {"success": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -98,7 +109,14 @@ def create_user(req: CreateUserRequest, request: Request):
         raise HTTPException(status_code=400, detail=msg)
         
     try:
-        users_create(req.email.lower().strip(), req.password, req.role, req.department_ids)
+        from core.db_departments import user_department_access_get_details
+        from email_utils import notify_account_created_by_admin
+        new_id = users_create(req.email.lower().strip(), req.password, req.role, req.department_ids)
+        
+        dept_details = user_department_access_get_details(new_id) if req.department_ids else []
+        dept_names = [d["name"] for d in dept_details]
+        notify_account_created_by_admin(req.email.lower().strip(), req.password, req.role, dept_names)
+        
         return {"success": True}
     except Exception as e:
         error_msg = str(e)
