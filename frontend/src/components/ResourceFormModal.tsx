@@ -125,7 +125,7 @@ export function ResourceFormModal({
           />
           <Input 
             label="YouTube Video / Embed URL (Optional)"
-            type="url" 
+            type="text" 
             value={formData.youtube_url} 
             onChange={e => setFormData({...formData, youtube_url: e.target.value})} 
           />

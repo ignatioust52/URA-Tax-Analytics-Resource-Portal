@@ -146,6 +146,11 @@ export default function ResourcesPage() {
     });
   };
 
+  const getIframeSrc = (input: string) => {
+    const match = input.match(/src=["']([^"']+)["']/);
+    return match ? match[1] : input;
+  };
+
   if (selectedResource) {
     return (
       <main className="main-container">
@@ -164,7 +169,7 @@ export default function ResourcesPage() {
         
         <Card noPadding style={{ height: 'calc(100vh - 200px)' }}>
           {selectedResource.youtube_url ? (
-            <iframe width="100%" height="100%" src={selectedResource.youtube_url.replace("watch?v=", "embed/")} frameBorder="0" allowFullScreen></iframe>
+            <iframe width="100%" height="100%" src={getIframeSrc(selectedResource.youtube_url).replace("watch?v=", "embed/")} frameBorder="0" allowFullScreen></iframe>
           ) : selectedResource.url.includes('youtube') || selectedResource.url.includes('youtu.be') ? (
             <iframe width="100%" height="100%" src={selectedResource.url.replace("watch?v=", "embed/")} frameBorder="0" allowFullScreen></iframe>
           ) : (
