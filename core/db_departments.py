@@ -7,6 +7,16 @@ def _fetch_all_dicts(query, params=None):
             cols = [desc[0] for desc in cur.description]
             return [dict(zip(cols, row)) for row in cur.fetchall()]
 
+def _fetch_one_dict(query, params=None):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(query, params)
+            row = cur.fetchone()
+            if not row:
+                return None
+            cols = [desc[0] for desc in cur.description]
+            return dict(zip(cols, row))
+
 def departments_get_all():
     """Returns all departments from the departments table, ordered by name."""
     try:
