@@ -15,6 +15,7 @@ type Resource = {
   description: string;
   category: string;
   url: string;
+  youtube_url?: string;
   department: string;
   created_at: string;
   view_count: number;
@@ -162,7 +163,9 @@ export default function ResourcesPage() {
         </div>
         
         <Card noPadding style={{ height: 'calc(100vh - 200px)' }}>
-          {selectedResource.url.includes('youtube') || selectedResource.url.includes('youtu.be') ? (
+          {selectedResource.youtube_url ? (
+            <iframe width="100%" height="100%" src={selectedResource.youtube_url.replace("watch?v=", "embed/")} frameBorder="0" allowFullScreen></iframe>
+          ) : selectedResource.url.includes('youtube') || selectedResource.url.includes('youtu.be') ? (
             <iframe width="100%" height="100%" src={selectedResource.url.replace("watch?v=", "embed/")} frameBorder="0" allowFullScreen></iframe>
           ) : (
             <iframe width="100%" height="100%" src={selectedResource.url} frameBorder="0" allowFullScreen></iframe>

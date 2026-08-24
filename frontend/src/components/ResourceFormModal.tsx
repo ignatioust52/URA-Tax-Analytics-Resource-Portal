@@ -4,14 +4,14 @@ import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 
-export function ResourceFormModal({ 
-  onClose, 
-  onSuccess, 
-  initialData 
-}: { 
-  onClose: () => void, 
-  onSuccess: () => void, 
-  initialData?: any 
+export function ResourceFormModal({
+  onClose,
+  onSuccess,
+  initialData
+}: {
+  onClose: () => void,
+  onSuccess: () => void,
+  initialData?: any
 }) {
   const isEditing = !!initialData;
   const [formData, setFormData] = useState({
@@ -20,6 +20,7 @@ export function ResourceFormModal({
     description: initialData?.description || '',
     category: initialData?.category || '',
     url: initialData?.url || '',
+    youtube_url: initialData?.youtube_url || '',
     visibility: initialData?.visibility || 'EVERYONE',
     dept_id_list: initialData?.departments ? initialData.departments.map((d: any) => typeof d === 'object' ? d.id : d) : []
   });
@@ -35,11 +36,11 @@ export function ResourceFormModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
-    const endpoint = isEditing 
-      ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources/${initialData.id}` 
+
+    const endpoint = isEditing
+      ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources/${initialData.id}`
       : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources`;
-      
+
     const method = isEditing ? 'PUT' : 'POST';
 
     try {
@@ -63,7 +64,7 @@ export function ResourceFormModal({
   const toggleDept = (id: number) => {
     setFormData(prev => ({
       ...prev,
-      dept_id_list: prev.dept_id_list.includes(id) 
+      dept_id_list: prev.dept_id_list.includes(id)
         ? prev.dept_id_list.filter((x: number) => x !== id)
         : [...prev.dept_id_list, id]
     }));
@@ -74,46 +75,46 @@ export function ResourceFormModal({
       <Card style={{ width: '100%', maxWidth: '600px', padding: 'var(--space-5)', boxShadow: 'var(--shadow-lg)', maxHeight: '90vh', overflowY: 'auto' }}>
         <h2 style={{ fontSize: '1.5rem', marginBottom: 'var(--space-4)' }}>{isEditing ? 'Edit Resource' : 'Add Resource'}</h2>
         {error && <div style={{ color: 'var(--error)', marginBottom: 'var(--space-3)' }}>{error}</div>}
-        
+
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
-          <Input 
+          <Input
             label="Page Name"
-            type="text" 
-            required 
-            value={formData.page_name} 
-            onChange={e => setFormData({...formData, page_name: e.target.value})} 
+            type="text"
+            required
+            value={formData.page_name}
+            onChange={e => setFormData({ ...formData, page_name: e.target.value })}
           />
-          <Input 
+          <Input
             label="Business Name"
-            type="text" 
-            required 
-            value={formData.business_name} 
-            onChange={e => setFormData({...formData, business_name: e.target.value})} 
+            type="text"
+            required
+            value={formData.business_name}
+            onChange={e => setFormData({ ...formData, business_name: e.target.value })}
           />
           <div style={{ marginBottom: 'var(--space-3)' }}>
             <label>Description</label>
-            <textarea 
-              value={formData.description} 
-              onChange={e => setFormData({...formData, description: e.target.value})} 
+            <textarea
+              value={formData.description}
+              onChange={e => setFormData({ ...formData, description: e.target.value })}
               rows={3}
-              style={{ 
-                width: '100%', 
-                padding: '10px 12px', 
-                borderRadius: 'var(--radius-md)', 
-                border: '1px solid var(--border-medium)', 
-                background: 'var(--surface)', 
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-medium)',
+                background: 'var(--surface)',
                 color: 'var(--text-primary)',
                 fontSize: '0.95rem',
                 outline: 'none',
                 resize: 'vertical'
-              }} 
+              }}
             />
           </div>
-          <Input 
+          <Input
             label="Category"
-            type="text" 
-            value={formData.category} 
-            onChange={e => setFormData({...formData, category: e.target.value})} 
+            type="text"
+            value={formData.category}
+            onChange={e => setFormData({ ...formData, category: e.target.value })}
           />
           <Input 
             label="URL"
@@ -122,20 +123,26 @@ export function ResourceFormModal({
             value={formData.url} 
             onChange={e => setFormData({...formData, url: e.target.value})} 
           />
-          
+          <Input 
+            label="YouTube Video / Embed URL (Optional)"
+            type="url" 
+            value={formData.youtube_url} 
+            onChange={e => setFormData({...formData, youtube_url: e.target.value})} 
+          />
+
           <div style={{ marginBottom: 'var(--space-3)' }}>
             <label style={{ display: 'block', marginBottom: '8px' }}>Visibility</label>
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <input type="radio" name="visibility" value="EVERYONE" checked={formData.visibility === 'EVERYONE'} onChange={e => setFormData({...formData, visibility: e.target.value})} />
+                <input type="radio" name="visibility" value="EVERYONE" checked={formData.visibility === 'EVERYONE'} onChange={e => setFormData({ ...formData, visibility: e.target.value })} />
                 Everyone
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <input type="radio" name="visibility" value="ADMIN_ONLY" checked={formData.visibility === 'ADMIN_ONLY'} onChange={e => setFormData({...formData, visibility: e.target.value})} />
+                <input type="radio" name="visibility" value="ADMIN_ONLY" checked={formData.visibility === 'ADMIN_ONLY'} onChange={e => setFormData({ ...formData, visibility: e.target.value })} />
                 Admin Only
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <input type="radio" name="visibility" value="SELECTED_DEPARTMENTS" checked={formData.visibility === 'SELECTED_DEPARTMENTS'} onChange={e => setFormData({...formData, visibility: e.target.value})} />
+                <input type="radio" name="visibility" value="SELECTED_DEPARTMENTS" checked={formData.visibility === 'SELECTED_DEPARTMENTS'} onChange={e => setFormData({ ...formData, visibility: e.target.value })} />
                 Selected Departments
               </label>
             </div>
@@ -154,7 +161,7 @@ export function ResourceFormModal({
               </div>
             </div>
           )}
-          
+
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: 'var(--space-5)' }}>
             <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
             <Button type="submit">Save Resource</Button>

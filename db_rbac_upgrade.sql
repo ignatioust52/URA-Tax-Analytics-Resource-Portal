@@ -141,3 +141,13 @@ CREATE TABLE IF NOT EXISTS resource_department_access (
     department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
     PRIMARY KEY (resource_id, department_id)
 );
+
+-- 10. Add youtube_url for video embeds
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='public_resources' AND column_name='youtube_url') THEN
+        ALTER TABLE public_resources ADD COLUMN youtube_url TEXT;
+    END IF;
+END $$;
+

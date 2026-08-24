@@ -156,6 +156,7 @@ class ResourceCreate(BaseModel):
     description: str = ""
     category: str = ""
     url: str
+    youtube_url: Optional[str] = None
     visibility: str = "EVERYONE"
     dept_id_list: List[int] = []
 
@@ -167,7 +168,7 @@ def create_resource(res: ResourceCreate, request: Request):
         from core.db_resources import resources_create
         new_id = resources_create(
             res.page_name, res.business_name, res.description,
-            res.category, res.url, res.visibility, res.dept_id_list, session.get("email")
+            res.category, res.url, res.youtube_url, res.visibility, res.dept_id_list, session.get("email")
         )
         return {"success": True, "id": new_id}
     except Exception as e:
@@ -180,7 +181,7 @@ async def update_resource(resource_id: int, res: ResourceCreate, request: Reques
         from core.db_resources import resources_update
         resources_update(
             resource_id, res.page_name, res.business_name, res.description,
-            res.category, res.url, res.visibility, res.dept_id_list, session.get("email")
+            res.category, res.url, res.youtube_url, res.visibility, res.dept_id_list, session.get("email")
         )
         from fastapi_cache import FastAPICache
         await FastAPICache.clear()
