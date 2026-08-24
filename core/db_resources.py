@@ -75,12 +75,19 @@ def resources_delete(resource_id, business_name, deleted_by):
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             try:
-                cur.execute("DELETE FROM public_resource_recent WHERE resource_id = %s", (int(resource_id),))
-                cur.execute("DELETE FROM public_resource_favorites WHERE resource_id = %s", (int(resource_id),))
-                cur.execute("DELETE FROM resource_department_access WHERE resource_id = %s", (int(resource_id),))
-                cur.execute("DELETE FROM role_resource_access WHERE resource_id = %s", (int(resource_id),))
-                cur.execute("DELETE FROM public_resource_lifecycle_events WHERE resource_id = %s", (int(resource_id),))
-                cur.execute("DELETE FROM public_resources_audit_log WHERE resource_id = %s", (int(resource_id),))
+                tables_to_clean = [
+                    'public_resource_recent',
+                    'public_resource_favorites',
+                    'resource_department_access',
+                    'role_resource_access',
+                    'public_resource_lifecycle_events',
+                    'public_resources_audit_log'
+                ]
+                for table in tables_to_clean:
+                    cur.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = %s)", (table,))
+                    if cur.fetchone()[0]:
+                        cur.execute(f"DELETE FROM {table} WHERE resource_id = %s", (int(resource_id),))
+                
                 cur.execute("DELETE FROM public_resources WHERE id = %s", (int(resource_id),))
             except Exception as e:
                 conn.rollback()
