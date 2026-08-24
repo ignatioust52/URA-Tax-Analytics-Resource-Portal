@@ -63,6 +63,24 @@ def reject_user(req: RejectRequest, request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class DeleteRequest(BaseModel):
+    user_id: int
+
+@router.delete("/")
+def delete_user(req: DeleteRequest, request: Request):
+    session = require_admin(request)
+    admin_id = session.get("id")
+    
+    # Prevent self-deletion
+    if req.user_id == admin_id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own admin account")
+        
+    from core.db_users import users_delete
+    success, msg = users_delete(req.user_id)
+    if not success:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"success": True, "message": msg}
+
 class CreateUserRequest(BaseModel):
     email: str
     password: str
@@ -83,7 +101,10 @@ def create_user(req: CreateUserRequest, request: Request):
         users_create(req.email.lower().strip(), req.password, req.role, req.department_ids)
         return {"success": True}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_msg = str(e)
+        if "unique constraint" in error_msg.lower() or "duplicate key" in error_msg.lower():
+            raise HTTPException(status_code=400, detail="An account with this email already exists.")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred.")
 
 @router.get("/sessions")
 def get_sessions(request: Request):

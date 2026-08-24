@@ -22,7 +22,7 @@ def get_pending_resources(request: Request):
     return clean_records(pending)
 
 @router.post("/approve")
-def update_approval(req: ApprovalRequest, request: Request):
+async def update_approval(req: ApprovalRequest, request: Request):
     session = require_admin(request)
     user_id = session.get("user_id")
     
@@ -30,4 +30,9 @@ def update_approval(req: ApprovalRequest, request: Request):
         raise HTTPException(status_code=400, detail="Invalid status")
         
     resources_update_approval(req.resource_id, req.status, user_id)
+    
+    # Clear cache to ensure new resources appear immediately
+    from fastapi_cache import FastAPICache
+    await FastAPICache.clear()
+    
     return {"success": True, "message": f"Resource {req.resource_id} {req.status}"}

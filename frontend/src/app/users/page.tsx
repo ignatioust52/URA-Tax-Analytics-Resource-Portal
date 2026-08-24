@@ -44,11 +44,24 @@ export default function UsersPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // Global Action Messages
+  const [actionError, setActionError] = useState('');
+  const [actionSuccess, setActionSuccess] = useState('');
+
+  const clearMessages = () => {
+    setActionError('');
+    setActionSuccess('');
+  };
+
   // Modal State for Approval
   const [approveModalOpen, setApproveModalOpen] = useState(false);
   const [selectedPendingUser, setSelectedPendingUser] = useState<any>(null);
   const [approveRole, setApproveRole] = useState('Viewer');
   const [approveDeptIds, setApproveDeptIds] = useState<number[]>([]);
+
+  // Modal State for Deletion
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedDeleteUser, setSelectedDeleteUser] = useState<any>(null);
 
   const fetchUsers = () => {
     setLoading(true);
@@ -82,6 +95,7 @@ export default function UsersPage() {
   }, []);
 
   const handleStatusUpdate = async (id: number, isActive: boolean, status: string) => {
+    clearMessages();
     try {
       await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/status`, {
         method: 'POST',
@@ -90,12 +104,30 @@ export default function UsersPage() {
       });
       fetchUsers();
     } catch (err: any) {
-      alert(err.message);
+      setActionError(err.message);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedDeleteUser) return;
+    clearMessages();
+    try {
+      await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: selectedDeleteUser.id })
+      });
+      setDeleteModalOpen(false);
+      fetchUsers();
+      setActionSuccess('User deleted successfully.');
+    } catch (err: any) {
+      setActionError(err.message);
     }
   };
 
   const handleApprove = async () => {
     if (!selectedPendingUser) return;
+    clearMessages();
     try {
       await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/approve`, {
         method: 'POST',
@@ -108,12 +140,14 @@ export default function UsersPage() {
       });
       setApproveModalOpen(false);
       fetchUsers();
+      setActionSuccess('User approved successfully.');
     } catch (err: any) {
-      alert(err.message);
+      setActionError(err.message);
     }
   };
 
   const handleReject = async (id: number) => {
+    clearMessages();
     try {
       await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/reject`, {
         method: 'POST',
@@ -121,8 +155,9 @@ export default function UsersPage() {
         body: JSON.stringify({ user_id: id })
       });
       fetchUsers();
+      setActionSuccess('User rejected.');
     } catch (err: any) {
-      alert(err.message);
+      setActionError(err.message);
     }
   };
 
@@ -132,19 +167,20 @@ export default function UsersPage() {
   
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    clearMessages();
     try {
       await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...createForm, department_ids: createDeptIds })
       });
-      alert("User created successfully!");
+      setActionSuccess("User created successfully!");
       setCreateForm({ email: '', password: '', role: 'Viewer' });
       setCreateDeptIds([]);
       fetchUsers();
       setActiveTab('active');
     } catch(err: any) {
-      alert(err.message);
+      setActionError(err.message);
     }
   };
 
@@ -186,7 +222,7 @@ export default function UsersPage() {
         {['active', 'pending', 'create'].map(tab => (
           <button 
             key={tab}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => { setActiveTab(tab); clearMessages(); }}
             style={{
               background: 'none', 
               border: 'none', 
@@ -204,6 +240,17 @@ export default function UsersPage() {
           </button>
         ))}
       </div>
+
+      {actionError && (
+        <div style={{ background: 'var(--error-bg)', border: '1px solid var(--error)', color: 'var(--error)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)', fontSize: '0.9rem', fontWeight: 500 }}>
+          {actionError}
+        </div>
+      )}
+      {actionSuccess && (
+        <div style={{ background: 'var(--success-bg)', border: '1px solid var(--success)', color: 'var(--success)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)', fontSize: '0.9rem', fontWeight: 500 }}>
+          {actionSuccess}
+        </div>
+      )}
 
       {loading ? (
         <Card style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Loading Users...</Card>
@@ -238,21 +285,38 @@ export default function UsersPage() {
                     {new Date(user.created_at).toLocaleDateString()}
                   </td>
                   <td style={{ padding: 'var(--space-3) var(--space-4)', textAlign: 'right' }}>
-                    {user.is_active ? (
-                      <Button size="sm" variant="danger" onClick={() => handleStatusUpdate(user.id, false, 'disabled')}>
-                        Disable
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                      {user.is_active ? (
+                        <Button size="sm" variant="danger" onClick={() => handleStatusUpdate(user.id, false, 'disabled')}>
+                          Disable
+                        </Button>
+                      ) : (
+                        <Button size="sm" onClick={() => handleStatusUpdate(user.id, true, 'active')}>
+                          Enable
+                        </Button>
+                      )}
+                      <Button size="sm" variant="danger" onClick={() => { setSelectedDeleteUser(user); setDeleteModalOpen(true); }}>
+                        Delete
                       </Button>
-                    ) : (
-                      <Button size="sm" onClick={() => handleStatusUpdate(user.id, true, 'active')}>
-                        Enable
-                      </Button>
-                    )}
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
           </div>
+          {deleteModalOpen && selectedDeleteUser && (
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '16px' }}>
+              <Card style={{ width: '100%', maxWidth: '400px' }}>
+                <h3 style={{ marginBottom: 'var(--space-3)' }}>Confirm Deletion</h3>
+                <p style={{ marginBottom: 'var(--space-4)' }}>Are you sure you want to delete the user <strong>{selectedDeleteUser.email}</strong>? This action cannot be undone.</p>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                  <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>Cancel</Button>
+                  <Button variant="danger" onClick={handleDelete}>Delete User</Button>
+                </div>
+              </Card>
+            </div>
+          )}
         </Card>
       ) : activeTab === 'pending' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>

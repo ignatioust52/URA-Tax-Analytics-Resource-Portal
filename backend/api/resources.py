@@ -174,7 +174,7 @@ def create_resource(res: ResourceCreate, request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/{resource_id}")
-def update_resource(resource_id: int, res: ResourceCreate, request: Request):
+async def update_resource(resource_id: int, res: ResourceCreate, request: Request):
     session = require_admin(request)
     try:
         from core.db_resources import resources_update
@@ -182,16 +182,20 @@ def update_resource(resource_id: int, res: ResourceCreate, request: Request):
             resource_id, res.page_name, res.business_name, res.description,
             res.category, res.url, res.visibility, res.dept_id_list, session.get("email")
         )
+        from fastapi_cache import FastAPICache
+        await FastAPICache.clear()
         return {"success": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/{resource_id}")
-def delete_resource(resource_id: int, business_name: str, request: Request):
+async def delete_resource(resource_id: int, business_name: str, request: Request):
     session = require_admin(request)
     try:
         from core.db_resources import resources_delete
         resources_delete(resource_id, business_name, session.get("email"))
+        from fastapi_cache import FastAPICache
+        await FastAPICache.clear()
         return {"success": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

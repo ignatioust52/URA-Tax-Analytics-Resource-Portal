@@ -10,6 +10,14 @@ export default function GovernancePage() {
   const [data, setData] = useState<any[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  
+  const [actionError, setActionError] = useState('');
+  const [actionSuccess, setActionSuccess] = useState('');
+
+  const clearMessages = () => {
+    setActionError('');
+    setActionSuccess('');
+  };
 
   const fetchPending = () => {
     setLoading(true);
@@ -29,6 +37,7 @@ export default function GovernancePage() {
   }, []);
 
   const handleApproval = async (id: number, status: 'Approved' | 'Rejected') => {
+    clearMessages();
     try {
       await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/governance/approve`, {
         method: 'POST',
@@ -38,8 +47,9 @@ export default function GovernancePage() {
         body: JSON.stringify({ resource_id: id, status }),
       });
       fetchPending(); // Refresh list
-    } catch (err) {
-      alert('Error updating status');
+      setActionSuccess(`Resource ${status.toLowerCase()} successfully.`);
+    } catch (err: any) {
+      setActionError(err.message || 'Error updating status');
     }
   };
 
@@ -68,6 +78,17 @@ export default function GovernancePage() {
             ← Back to Dashboard
           </Button>
         </div>
+
+        {actionError && (
+          <div style={{ background: 'var(--error-bg)', border: '1px solid var(--error)', color: 'var(--error)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)', fontSize: '0.9rem', fontWeight: 500 }}>
+            {actionError}
+          </div>
+        )}
+        {actionSuccess && (
+          <div style={{ background: 'var(--success-bg)', border: '1px solid var(--success)', color: 'var(--success)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)', fontSize: '0.9rem', fontWeight: 500 }}>
+            {actionSuccess}
+          </div>
+        )}
 
         {loading ? (
           <Card style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Loading Queue...</Card>

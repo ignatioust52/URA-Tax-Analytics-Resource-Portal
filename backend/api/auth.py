@@ -172,4 +172,7 @@ def register(req: RegisterRequest):
         users_register(req.email.lower().strip(), req.password, req.department)
         return {"success": True, "message": "Account created — awaiting admin approval."}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+        error_msg = str(e)
+        if "unique constraint" in error_msg.lower() or "duplicate key" in error_msg.lower():
+            raise HTTPException(status_code=400, detail="An account with this email already exists.")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred during registration.")
