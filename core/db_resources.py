@@ -72,16 +72,19 @@ def resources_update(resource_id, page_name, business_name, description, categor
     resources_log_audit(int(resource_id), "update", last_edited_by, f"Updated '{business_name}'")
 
 def resources_delete(resource_id, business_name, deleted_by):
-    resources_log_audit(int(resource_id), "delete", deleted_by, f"Deleted '{business_name}'")
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             try:
                 cur.execute("DELETE FROM public_resource_recent WHERE resource_id = %s", (int(resource_id),))
                 cur.execute("DELETE FROM public_resource_favorites WHERE resource_id = %s", (int(resource_id),))
                 cur.execute("DELETE FROM resource_department_access WHERE resource_id = %s", (int(resource_id),))
+                cur.execute("DELETE FROM role_resource_access WHERE resource_id = %s", (int(resource_id),))
+                cur.execute("DELETE FROM public_resource_lifecycle_events WHERE resource_id = %s", (int(resource_id),))
+                cur.execute("DELETE FROM public_resources_audit_log WHERE resource_id = %s", (int(resource_id),))
                 cur.execute("DELETE FROM public_resources WHERE id = %s", (int(resource_id),))
-            except Exception:
+            except Exception as e:
                 conn.rollback()
+                print(f"Delete failed: {e}")
                 raise
 
 def resources_record_view(resource_id):
