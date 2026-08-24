@@ -7,11 +7,15 @@ import { Input } from './ui/Input';
 export function ResourceFormModal({
   onClose,
   onSuccess,
-  initialData
+  initialData,
+  userRole,
+  onDelete
 }: {
   onClose: () => void,
   onSuccess: () => void,
-  initialData?: any
+  initialData?: any,
+  userRole?: string,
+  onDelete?: (id: number) => void
 }) {
   const isEditing = !!initialData;
   const [formData, setFormData] = useState({
@@ -163,6 +167,11 @@ export function ResourceFormModal({
           )}
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: 'var(--space-5)' }}>
+            {isEditing && userRole === 'super administrator' && onDelete && (
+              <Button type="button" onClick={() => onDelete(initialData.id)} style={{ backgroundColor: '#dc3545', marginRight: 'auto' }}>
+                Delete
+              </Button>
+            )}
             <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
             <Button type="submit">Save Resource</Button>
           </div>

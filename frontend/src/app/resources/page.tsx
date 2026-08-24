@@ -223,6 +223,22 @@ export default function ResourcesPage() {
       {showModal && (
         <ResourceFormModal 
           initialData={editingResource}
+          userRole={user?.role}
+          onDelete={async (id) => {
+            if (!confirm('Are you sure you want to delete this resource?')) return;
+            try {
+              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/resources/${id}?business_name=${encodeURIComponent(editingResource?.business_name || 'Resource')}`, { 
+                method: 'DELETE',
+                credentials: 'include'
+              });
+              if (!res.ok) throw new Error('Delete failed');
+              setShowModal(false);
+              reloadData();
+            } catch (err) {
+              console.error(err);
+              alert('Failed to delete resource');
+            }
+          }}
           onClose={() => setShowModal(false)}
           onSuccess={() => { setShowModal(false); reloadData(); }}
         />
