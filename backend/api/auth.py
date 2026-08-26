@@ -4,6 +4,11 @@ import bcrypt
 import pandas as pd
 from core.db import get_connection
 from core.auth import user_get_by_email, create_user_session, get_active_session, delete_user_session
+import sys
+import os
+# ensure root is in path just in case
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from email_utils import notify_registration_received
 
 router = APIRouter()
 
@@ -170,11 +175,12 @@ def register(req: RegisterRequest):
     from core.db_users import users_register
     try:
         users_register(req.email.lower().strip(), req.password, req.department)
-        from email_utils import notify_registration_received
         notify_registration_received(req.email.lower().strip())
         return {"success": True, "message": "Account created — awaiting admin approval."}
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         error_msg = str(e)
         if "unique constraint" in error_msg.lower() or "duplicate key" in error_msg.lower():
             raise HTTPException(status_code=400, detail="An account with this email already exists.")
-        raise HTTPException(status_code=500, detail="An unexpected error occurred during registration.")
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred during registration: {error_msg}")
