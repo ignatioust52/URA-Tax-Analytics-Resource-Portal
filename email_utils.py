@@ -13,8 +13,9 @@ import ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-import streamlit as st
+import logging
 
+logger = logging.getLogger(__name__)
 URA_BLUE = "#1755a6"
 URA_YELLOW = "#fff201"
 URA_DARK = "#30302f"
@@ -107,7 +108,7 @@ def notify_registration_received(to_email):
     )
     ok, err = _send_email(to_email, "Your URA Resource Portal account is pending approval", body)
     if not ok:
-        st.warning(f"Registration email not sent to {to_email}: {err}")
+        logger.warning(f"Registration email not sent to {to_email}: {err}")
     return ok
 
 
@@ -133,7 +134,7 @@ def notify_account_approved(to_email, role, departments):
     )
     ok, err = _send_email(to_email, "Your URA Resource Portal account has been approved", body)
     if not ok:
-        st.warning(f"Approval email not sent to {to_email}: {err}")
+        logger.warning(f"Approval email not sent to {to_email}: {err}")
     return ok
 
 
@@ -150,7 +151,7 @@ def notify_account_rejected(to_email):
     )
     ok, err = _send_email(to_email, "Your URA Resource Portal account request was declined", body)
     if not ok:
-        st.warning(f"Rejection email not sent to {to_email}: {err}")
+        logger.warning(f"Rejection email not sent to {to_email}: {err}")
     return ok
 
 
@@ -172,7 +173,7 @@ def notify_account_status_changed(to_email, is_now_active):
     body = _wrap_template(title=title, intro_html=intro, body_html="", accent=accent)
     ok, err = _send_email(to_email, subject, body)
     if not ok:
-        st.warning(f"Status-change email not sent to {to_email}: {err}")
+        logger.warning(f"Status-change email not sent to {to_email}: {err}")
     return ok
 
 
@@ -189,7 +190,7 @@ def notify_password_reset(to_email, new_password):
     )
     ok, err = _send_email(to_email, "Your URA Resource Portal password has been reset", body)
     if not ok:
-        st.warning(f"Password reset email not sent to {to_email}: {err}")
+        logger.warning(f"Password reset email not sent to {to_email}: {err}")
     return ok
 
 
@@ -218,5 +219,5 @@ def notify_account_created_by_admin(to_email, temp_password, role, departments):
     )
     ok, err = _send_email(to_email, "Your URA Resource Portal account is ready", body)
     if not ok:
-        st.warning(f"Welcome email not sent to {to_email}: {err}")
+        logger.warning(f"Welcome email not sent to {to_email}: {err}")
     return ok
